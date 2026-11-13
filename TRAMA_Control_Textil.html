@@ -1,0 +1,2192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="theme-color" content="#0e1931" />
+<title>TRAMA · Control de producción textil — MVP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,700&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   WARM AMBIENT GLASSMORPHISM (TRAMA · PIMIENTA MODA Y ESTILO)
+   Efectos de vidrio esmerilado cálido, orbes flotantes, tilt 3D, sidebar colapsable,
+   reflejos luminosos, ripples fluidos y portal de acceso seguro.
+   ========================================================================== */
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Textos & Contraste */
+  --ink: #18181b;
+  --ink-soft: #27272a;
+  --ink-subtle: #52525b;
+  --muted: #71717a;
+  --muted-light: #a1a1aa;
+  
+  /* Acentos Principales: Terracota & Coral Vivo (Pimienta) */
+  --coral: #E05A47;
+  --coral-dark: #C84633;
+  --coral-light: #F06543;
+  --coral-gradient: linear-gradient(135deg, #E05A47 0%, #EA580C 45%, #F06543 100%);
+  --coral-gradient-hover: linear-gradient(135deg, #D44E3B 0%, #DC5008 45%, #E55735 100%);
+  --coral-glow: rgba(224, 90, 71, 0.35);
+  
+  /* Acentos Secundarios: Ámbar & Esmeralda */
+  --amber: #F59E0B;
+  --amber-soft: rgba(245, 158, 11, 0.14);
+  --emerald: #10B981;
+  --emerald-dark: #059669;
+  --emerald-soft: rgba(16, 185, 129, 0.12);
+  --blue: #2563EB;
+  --blue-soft: rgba(37, 99, 235, 0.12);
+  --red: #DC2626;
+  --red-soft: rgba(220, 38, 38, 0.12);
+  
+  /* Superficies de Vidrio Esmerilado (Glassmorphism Cálido) */
+  --glass-card: rgba(255, 255, 255, 0.68);
+  --glass-card-hover: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-border-subtle: rgba(255, 255, 255, 0.45);
+  --glass-shadow: 0 16px 36px -10px rgba(120, 60, 30, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.65) inset;
+  --glass-shadow-hover: 0 24px 48px -10px rgba(224, 90, 71, 0.20), 0 0 0 1px rgba(255, 255, 255, 0.95) inset;
+  --radius: 22px;
+  
+  /* Físicas de animación fluida */
+  --fx-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --fx-spring: cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+* { box-sizing: border-box; }
+html { min-height: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 12% 16%, rgba(224, 90, 71, 0.12) 0%, transparent 46%),
+              radial-gradient(ellipse at 88% 84%, rgba(245, 158, 11, 0.10) 0%, transparent 48%),
+              radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.7) 0%, transparent 75%),
+              linear-gradient(135deg, #FAF8F5 0%, #F3EFE6 48%, #EAE3D3 100%);
+  background-size: 130% 130%;
+  animation: fxSkyWarm 18s ease-in-out infinite alternate;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 8% 22%, rgba(255, 255, 255, 0.8) 0%, transparent 35%),
+              radial-gradient(circle at 92% 80%, rgba(224, 90, 71, 0.08) 0%, transparent 38%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes fxSkyWarm {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 80%; }
+}
+
+/* ==========================================================================
+   ESTADO DASHBOARD ACTIVO (Entorno de Trabajo Tras Login)
+   ========================================================================== */
+body.dashboard-active {
+  background: radial-gradient(ellipse at 88% 12%, rgba(224, 90, 71, 0.12) 0%, transparent 45%),
+              radial-gradient(ellipse at 15% 85%, rgba(245, 158, 11, 0.09) 0%, transparent 48%),
+              linear-gradient(135deg, #FAF8F5 0%, #F3EFE6 45%, #EAE3D3 100%);
+  padding: 0;
+  display: block;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   PANTALLA DE LOGIN (PORTAL DE ENTRADA GLASSMORPHISM)
+   ========================================================================== */
+.login-view-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  position: relative;
+}
+
+.login-shell {
+  width: min(1200px, 100%);
+  min-height: 680px;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  background: rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 32px;
+  box-shadow: 0 35px 95px -20px rgba(100, 50, 30, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+  z-index: 1;
+}
+
+/* Panel Visual Izquierdo (Hero Trama / Pimienta) */
+.visual {
+  background: radial-gradient(circle at 74% 36%, rgba(224, 90, 71, 0.32) 0%, transparent 55%),
+              radial-gradient(circle at 22% 82%, rgba(245, 158, 11, 0.22) 0%, transparent 52%),
+              linear-gradient(145deg, #181619 0%, #221b20 54%, #141215 100%);
+  color: #FAF8F5;
+  position: relative;
+  padding: 42px 46px 46px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.visual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.35) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.35) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 85%, transparent);
+}
+
+.visual::after {
+  content: "";
+  position: absolute;
+  width: 580px;
+  height: 580px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224, 90, 71, 0.26), transparent 66%);
+  left: calc(50% - 290px);
+  top: 18%;
+  filter: blur(24px);
+  pointer-events: none;
+  animation: fxAmbientWarm 14s ease-in-out infinite alternate;
+}
+
+@keyframes fxAmbientWarm {
+  from { transform: translate(-4%, -4%) scale(0.96); }
+  to { transform: translate(5%, 4%) scale(1.08); }
+}
+
+.brand-login {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  z-index: 2;
+  position: relative;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: #FFF;
+  background: var(--coral-gradient);
+  font-size: 24px;
+  font-weight: 800;
+  box-shadow: 0 10px 26px rgba(224, 90, 71, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.brand-title {
+  font: 800 19px var(--font-sans);
+  letter-spacing: 0.14em;
+  color: #FFF;
+}
+
+.brand-sub {
+  font-size: 10px;
+  letter-spacing: 0.20em;
+  color: rgba(255, 245, 240, 0.75);
+  margin-top: 3px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 3;
+  margin-top: 48px;
+}
+
+.hero-eyebrow {
+  font-weight: 800;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #F06543;
+}
+
+.hero-copy h1 {
+  font: 800 clamp(32px, 3.6vw, 48px)/1.14 var(--font-sans);
+  letter-spacing: -0.048em;
+  max-width: 480px;
+  margin: 14px 0 12px;
+  color: #FFF;
+}
+
+.hero-copy p {
+  line-height: 1.68;
+  color: rgba(255, 245, 240, 0.85);
+  max-width: 420px;
+  font-size: 13.5px;
+  margin: 0;
+}
+
+.orbit {
+  height: 250px;
+  width: 360px;
+  max-width: 95%;
+  position: relative;
+  margin: 24px auto 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  transform: perspective(700px) rotateX(2deg);
+  transition: transform 0.4s ease;
+}
+
+.ring {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 1px solid rgba(240, 101, 67, 0.35);
+  box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.04), 0 0 0 60px rgba(224, 90, 71, 0.03);
+  animation: fxRingBreathWarm 6s ease-in-out infinite alternate;
+}
+
+.ring::before, .ring::after {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.32);
+  animation: spin 30s linear infinite;
+}
+
+.ring::after {
+  inset: 52px;
+  border: 1px solid rgba(240, 101, 67, 0.35);
+  animation-direction: reverse;
+  animation-duration: 22s;
+}
+
+@keyframes fxRingBreathWarm {
+  to { filter: drop-shadow(0 0 28px rgba(240, 101, 67, 0.6)); transform: scale(1.05); }
+}
+
+.halo {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  border-radius: 36px;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, rgba(224, 90, 71, 0.32), rgba(255, 255, 255, 0.16));
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 0 45px rgba(224, 90, 71, 0.25), 0 28px 75px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(20px);
+  animation: float 5.5s ease-in-out infinite;
+}
+
+.mini-logo {
+  font: 800 58px var(--font-sans);
+  color: #FFF;
+  text-shadow: 0 4px 30px rgba(224, 90, 71, 0.7);
+  z-index: 3;
+  animation: bob 5.5s ease-in-out infinite;
+  letter-spacing: -0.05em;
+}
+
+.node {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #E05A47;
+  box-shadow: 0 0 0 7px rgba(224, 90, 71, 0.22), 0 0 20px #E05A47;
+  z-index: 4;
+}
+
+.node.n1 { top: 18px; left: 45px; }
+.node.n2 { bottom: 38px; right: 35px; background: #F59E0B; box-shadow: 0 0 0 7px rgba(245, 158, 11, 0.22), 0 0 20px #F59E0B; }
+.node.n3 { top: 86px; right: 16px; width: 7px; height: 7px; background: #FFF; }
+
+.data-chip {
+  position: absolute;
+  z-index: 5;
+  background: rgba(30, 24, 28, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(18px);
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  animation: float 5.8s ease-in-out infinite;
+  color: #FFF;
+}
+
+.data-chip small { display: block; color: rgba(255, 235, 225, 0.75); margin-bottom: 5px; font-size: 10px; }
+.data-chip strong { font-size: 12px; font-weight: 700; color: #FFF; }
+.chip-left { left: 0; bottom: 25px; }
+.chip-right { right: 0; top: 18px; animation-delay: -2.5s; }
+.chip-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #E05A47; margin-right: 5px; box-shadow: 0 0 8px #E05A47; }
+
+.visual-footer {
+  position: relative;
+  z-index: 4;
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(255, 240, 235, 0.75);
+}
+
+.visual-footer .live { color: #F06543; font-weight: 700; letter-spacing: 0.04em; }
+
+/* Panel Derecho de Formulario */
+.login-panel {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.90) 0%, rgba(248, 244, 236, 0.85) 100%);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-left: 1px solid rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px clamp(28px, 4.8vw, 68px);
+  position: relative;
+}
+
+.top-tag {
+  position: absolute;
+  right: 36px;
+  top: 32px;
+  color: var(--muted);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.form-wrap {
+  width: 100%;
+  max-width: 400px;
+  animation: enter 0.8s var(--fx-ease) both;
+}
+
+.lock-icon {
+  height: 52px;
+  width: 52px;
+  background: linear-gradient(135deg, rgba(224, 90, 71, 0.14), rgba(245, 158, 11, 0.08));
+  border: 1px solid rgba(224, 90, 71, 0.28);
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: #E05A47;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 24px rgba(224, 90, 71, 0.16);
+  animation: fxLockBreatheWarm 4.8s ease-in-out infinite alternate;
+}
+
+@keyframes fxLockBreatheWarm {
+  to { box-shadow: 0 0 32px rgba(224, 90, 71, 0.35); transform: translateY(-3px); }
+}
+
+.lock-icon svg { width: 24px; height: 24px; }
+
+.form-wrap h2 {
+  font: 800 clamp(28px, 3.2vw, 36px)/1.2 var(--font-sans);
+  letter-spacing: -0.048em;
+  margin: 0 0 10px;
+  color: var(--ink);
+}
+
+.login-intro {
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.65;
+  margin: 0 0 30px;
+}
+
+.login-field { margin: 0 0 20px; }
+.login-field label {
+  font-weight: 700;
+  font-size: 12px;
+  display: block;
+  margin: 0 0 8px;
+  color: var(--ink-soft);
+}
+
+.input-shell {
+  display: flex;
+  align-items: center;
+  height: 54px;
+  border-radius: 14px;
+  border: 1px solid rgba(215, 205, 195, 0.75);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s var(--fx-ease);
+  position: relative;
+}
+
+.input-shell:focus-within {
+  border-color: #E05A47;
+  box-shadow: 0 0 0 4px rgba(224, 90, 71, 0.18);
+  transform: translateY(-2px);
+}
+
+.input-shell > svg {
+  height: 18px;
+  width: 18px;
+  margin: 0 14px 0 18px;
+  color: #a1a1aa;
+  flex: none;
+}
+
+.input-shell input, .input-shell select {
+  background: transparent;
+  border: 0;
+  outline: 0;
+  min-width: 0;
+  flex: 1;
+  font: 500 13.5px var(--font-sans);
+  color: var(--ink);
+  padding: 0 12px 0 0;
+  height: 100%;
+}
+
+.input-shell input::placeholder { color: #a1a1aa; }
+
+.eye-btn {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: #a1a1aa;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  margin-right: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.eye-btn:hover { color: #E05A47; background: rgba(224, 90, 71, 0.08); }
+.eye-btn svg { width: 18px; height: 18px; }
+
+.login-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 4px;
+  margin-bottom: 26px;
+  font-size: 12px;
+}
+
+.remember {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--ink-subtle);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.remember input {
+  accent-color: #E05A47;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.forgot-link {
+  color: #E05A47;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forgot-link:hover { text-decoration: underline; color: #C84633; }
+
+.submit-btn {
+  width: 100%;
+  height: 54px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--coral-gradient);
+  color: #FFF;
+  cursor: pointer;
+  font: 700 14px var(--font-sans);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 16px 34px -8px rgba(224, 90, 71, 0.48);
+  transition: transform 0.25s var(--fx-ease), background 0.25s, box-shadow 0.25s;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.submit-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, transparent 15%, rgba(255, 255, 255, 0.45) 45%, transparent 65%);
+  transform: translateX(-120%);
+  animation: fxSubmitGlint 4.8s ease-in-out infinite;
+}
+
+@keyframes fxSubmitGlint {
+  0%, 40% { transform: translateX(-120%); }
+  75%, 100% { transform: translateX(120%); }
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  background: var(--coral-gradient-hover);
+  box-shadow: 0 22px 42px -6px rgba(224, 90, 71, 0.58);
+}
+
+.submit-btn:active { transform: translateY(0); }
+.submit-btn svg { width: 17px; height: 17px; transition: transform 0.2s; }
+.submit-btn:hover svg { transform: translateX(4px); }
+
+.login-helper {
+  margin: 24px 0 0;
+  line-height: 1.65;
+  text-align: center;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.login-helper strong { color: var(--ink-soft); font-weight: 600; }
+.login-message { min-height: 18px; font-size: 12px; color: #DC2626; margin-top: 10px; line-height: 1.5; font-weight: 600; }
+
+.demo-pill {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.10em;
+  font-weight: 700;
+}
+
+.demo-pill span {
+  width: 6px;
+  height: 6px;
+  background: #E05A47;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #E05A47;
+}
+
+/* ==========================================================================
+   APP SHELL / WORKSPACE (TUTOR GLASS XR LAYOUT)
+   ========================================================================== */
+.app {
+  min-height: 100vh;
+  display: flex;
+  position: relative;
+  width: 100%;
+}
+
+/* ────────── BARRA LATERAL COLAPSABLE (Sidebar - Code XR Style) ────────── */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  flex: 0 0 256px;
+  width: 256px;
+  background: linear-gradient(175deg, #18171a 0%, #201a1d 58%, #141215 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  color: #FFF;
+  padding: 30px 18px 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 16px 0 45px rgba(20, 10, 15, 0.14);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  z-index: 110;
+  overflow-x: hidden;
+  overflow-y: auto;
+  transition: flex 0.35s var(--fx-ease), flex-basis 0.35s var(--fx-ease), width 0.35s var(--fx-ease), padding 0.35s var(--fx-ease);
+}
+
+.sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 25% 15%, rgba(224, 90, 71, 0.18) 0%, transparent 35%),
+              radial-gradient(circle at 80% 85%, rgba(245, 158, 11, 0.12) 0%, transparent 40%);
+}
+
+.sidebar::after {
+  content: "";
+  position: absolute;
+  inset: -100% -50%;
+  background: linear-gradient(105deg, transparent 44%, rgba(255, 255, 255, 0.05) 49%, rgba(255, 255, 255, 0.12) 50%, transparent 56%);
+  pointer-events: none;
+  animation: fxSideLight 14s linear infinite;
+}
+
+@keyframes fxSideLight { to { transform: translateX(50%); } }
+
+.brand-sidebar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 0 6px 36px;
+  position: relative;
+  z-index: 2;
+  transition: margin 0.3s var(--fx-ease), justify-content 0.3s;
+}
+
+.brand-symbol {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  background: var(--coral-gradient);
+  color: #FFF;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font: 800 24px var(--font-sans);
+  box-shadow: 0 10px 24px rgba(224, 90, 71, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  flex: none;
+}
+
+.brand-name {
+  font: 800 18px var(--font-sans);
+  letter-spacing: 0.12em;
+  color: #FFF;
+  white-space: nowrap;
+}
+
+.brand-caption {
+  color: rgba(255, 235, 225, 0.72);
+  font: 700 9.5px var(--font-sans);
+  letter-spacing: 0.18em;
+  margin-top: 3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Botón de Colapso (<) de la Barra Lateral */
+.sidebar-collapse-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #FFF;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  margin-left: auto;
+  transition: background 0.25s, transform 0.35s var(--fx-ease), border-color 0.2s;
+  flex: none;
+  padding: 0;
+}
+
+.sidebar-collapse-toggle svg { width: 15px; height: 15px; stroke-width: 2.5; transition: transform 0.35s var(--fx-ease); }
+.sidebar-collapse-toggle:hover { background: rgba(224, 90, 71, 0.85); border-color: rgba(255, 255, 255, 0.5); transform: scale(1.08); }
+
+/* ESTADO COLAPSADO DE LA BARRA LATERAL (Width: 256px -> 76px) */
+.sidebar.collapsed {
+  flex: 0 0 76px !important;
+  width: 76px !important;
+  padding: 26px 12px 20px !important;
+  align-items: center !important;
+}
+
+.sidebar.collapsed .brand-sidebar {
+  margin: 0 0 32px 0 !important;
+  justify-content: center !important;
+  gap: 0 !important;
+}
+
+.sidebar.collapsed .brand-sidebar > div:not(.brand-symbol),
+.sidebar.collapsed .menu-label,
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .nav-item.active::after,
+.sidebar.collapsed .side-foot,
+.sidebar.collapsed .sidebar-logout span {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.sidebar.collapsed .sidebar-collapse-toggle {
+  position: absolute;
+  right: -10px;
+  top: 14px;
+  transform: rotate(180deg) !important;
+  background: rgba(224, 90, 71, 0.9) !important;
+  box-shadow: 0 4px 12px rgba(224, 90, 71, 0.4);
+}
+
+.sidebar.collapsed .nav {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.sidebar.collapsed .nav-item {
+  width: 48px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+  border-radius: 14px !important;
+}
+
+.sidebar.collapsed .nav-item svg {
+  margin: 0 !important;
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.sidebar.collapsed .fx-nav-track {
+  width: 48px !important;
+  left: calc(50% - 24px) !important;
+}
+
+.sidebar.collapsed .sidebar-bottom {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.sidebar.collapsed .sidebar-logout {
+  width: 48px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+  margin: 8px auto 0 !important;
+}
+
+.menu-label {
+  font-size: 10px;
+  color: #a1a1aa;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  font-weight: 800;
+  padding: 0 16px;
+  margin: 0 0 14px;
+  position: relative;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.nav {
+  display: grid;
+  gap: 7px;
+  position: relative;
+  isolation: isolate;
+  z-index: 2;
+}
+
+.fx-nav-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 50px;
+  z-index: -1;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25), inset 0 1px 2px #FFF;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  transition: transform 0.45s var(--fx-ease), height 0.45s var(--fx-ease), opacity 0.2s, width 0.35s var(--fx-ease), left 0.35s var(--fx-ease);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nav-item {
+  font: 600 13px var(--font-sans);
+  min-height: 50px;
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: #d4d4d8;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  padding: 0 15px;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, transform 0.25s var(--fx-ease);
+  position: relative;
+  z-index: 1;
+}
+
+.nav-item svg { width: 19px; height: 19px; flex: none; transition: transform 0.2s, color 0.2s; }
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFF;
+  transform: translateX(4px);
+}
+
+.nav-item.active {
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: #18181b !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22) !important;
+  font-weight: 700;
+}
+
+.nav-item.active svg { color: #E05A47; }
+
+.nav-item.active::after {
+  content: '';
+  margin-left: auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #E05A47;
+  box-shadow: 0 0 0 3px rgba(224, 90, 71, 0.25);
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.side-foot {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  margin: 16px 2px 14px;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.2);
+  font-size: 11.5px;
+  color: #d4d4d8;
+  line-height: 1.55;
+}
+
+.side-foot strong { color: #FFF; }
+.online-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background: #10B981;
+  border-radius: 50%;
+  margin-right: 6px;
+  box-shadow: 0 0 8px #10B981;
+}
+
+.sidebar-logout {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fca5a5;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.sidebar-logout:hover {
+  background: rgba(220, 38, 38, 0.2);
+  color: #FFF;
+  border-color: rgba(220, 38, 38, 0.4);
+  transform: translateY(-2px);
+}
+
+.sidebar-logout svg { width: 17px; height: 17px; }
+
+/* ────────── ÁREA DE CONTENIDO (main & topbar) ────────── */
+.main {
+  min-width: 0;
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.topbar {
+  height: 82px;
+  min-height: 82px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: space-between;
+  padding: 0 clamp(24px, 3.6vw, 54px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  position: sticky;
+  top: 0;
+  z-index: 104;
+  box-shadow: 0 6px 20px rgba(120, 60, 30, 0.04);
+  animation: fxSlideDown 0.6s var(--fx-ease) both;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.breadcrumb b {
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 14.5px;
+}
+
+.top-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  border-radius: 14px;
+  width: 42px;
+  height: 42px;
+  background: var(--coral-gradient);
+  color: #FFF;
+  display: grid;
+  place-items: center;
+  font: 800 17px var(--font-sans);
+  box-shadow: 0 8px 22px rgba(224, 90, 71, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.user-pick {
+  height: 44px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  color: var(--ink-soft);
+  border-radius: 13px;
+  padding: 0 34px 0 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  outline-color: var(--coral);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.user-pick:focus {
+  border-color: #E05A47;
+  box-shadow: 0 0 0 3px rgba(224, 90, 71, 0.15);
+}
+
+.content {
+  padding: 32px clamp(24px, 3.6vw, 54px) 80px;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+/* ────────── ENCABEZADOS Y BANNERS ────────── */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #E05A47;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 10.5px;
+  margin-bottom: 8px;
+}
+
+.eyebrow::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #E05A47;
+  box-shadow: 0 0 0 4px rgba(224, 90, 71, 0.2);
+}
+
+.pagehead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 26px;
+}
+
+.pagehead h1 {
+  font: 800 clamp(26px, 2.8vw, 36px)/1.15 var(--font-sans);
+  letter-spacing: -0.048em;
+  margin: 0 0 8px;
+  color: var(--ink);
+}
+
+.pagehead p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.banner {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #3f3f46;
+  padding: 15px 18px;
+  border-radius: 16px;
+  margin-bottom: 26px;
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+
+.banner svg {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  color: #E05A47;
+}
+
+.banner strong { color: #18181b; }
+
+/* ────────── BOTONES GLASSMORPHIC ────────── */
+.btn {
+  border: 1px solid transparent;
+  padding: 10px 18px;
+  border-radius: 13px;
+  font-weight: 700;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  line-height: 1.3;
+  min-height: 42px;
+  background: var(--coral-gradient);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(224, 90, 71, 0.35);
+  transition: transform 0.25s var(--fx-ease), box-shadow 0.25s, background 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: var(--coral-gradient-hover);
+  box-shadow: 0 16px 32px rgba(224, 90, 71, 0.48);
+}
+
+.btn:active:not(:disabled) { transform: translateY(0); }
+
+.btn.secondary {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--ink-soft);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 16px rgba(120, 60, 30, 0.05);
+}
+
+.btn.secondary:hover:not(:disabled) {
+  background: #FFF;
+  color: #E05A47;
+  border-color: rgba(224, 90, 71, 0.35);
+  box-shadow: 0 10px 24px rgba(224, 90, 71, 0.16);
+}
+
+.btn.danger {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--red);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.08);
+}
+
+.btn.danger:hover:not(:disabled) {
+  background: #FEF2F2;
+  border-color: var(--red);
+  box-shadow: 0 10px 24px rgba(220, 38, 38, 0.2);
+}
+
+.btn.sm {
+  font-size: 12px;
+  min-height: 34px;
+  padding: 6px 12px;
+  border-radius: 10px;
+}
+
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ────────── TARJETAS Y PANELES GLASSMORPHISM ────────── */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.kpi {
+  background: rgba(255, 255, 255, 0.68);
+  border-radius: var(--radius);
+  padding: 22px 22px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  transition: transform 0.3s var(--fx-ease), box-shadow 0.3s var(--fx-ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--glass-shadow-hover);
+  border-color: rgba(255, 255, 255, 0.98);
+}
+
+.kpi-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.kpi-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: rgba(224, 90, 71, 0.12);
+  color: #E05A47;
+  border: 1px solid rgba(224, 90, 71, 0.22);
+  transition: transform 0.35s var(--fx-ease);
+}
+
+.kpi:hover .kpi-icon {
+  transform: translateY(-3px) rotate(-6deg) scale(1.1);
+  box-shadow: 0 8px 22px rgba(224, 90, 71, 0.3);
+}
+
+.kpi-value {
+  font-size: 32px;
+  font-weight: 850;
+  line-height: 1.15;
+  margin: 12px 0 4px;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.kpi-note {
+  font-size: 11.5px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: 1.45fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s var(--fx-ease), box-shadow 0.3s var(--fx-ease);
+}
+
+.panel:hover {
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.panel-head {
+  padding: 22px 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.panel-title {
+  font-size: 16px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.panel-sub {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.panel-body {
+  padding: 0 24px 22px;
+}
+
+/* ────────── TABLAS CON ESTILO VIDRIO ESMERILADO ────────── */
+.table-wrap {
+  overflow: auto;
+  max-width: 100%;
+}
+
+.data-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 610px;
+}
+
+.data-table th {
+  text-align: left;
+  color: #71717a;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 10.5px;
+  font-weight: 850;
+  background: rgba(250, 248, 245, 0.6);
+  border-top: 1px solid rgba(220, 210, 200, 0.45);
+  padding: 13px 14px;
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 14px;
+  border-top: 1px solid rgba(220, 210, 200, 0.35);
+  vertical-align: middle;
+  font-size: 13px;
+}
+
+.data-table tr:hover td {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.maincol { font-weight: 800; color: #18181b; }
+.subcol { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: -0.02em; }
+
+/* ────────── TAGS / BADGES MODERNOS ────────── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 99px;
+  background: rgba(220, 210, 200, 0.35);
+  color: #52525b;
+}
+
+.tag.green { background: rgba(16, 185, 129, 0.14); color: #059669; border: 1px solid rgba(16, 185, 129, 0.25); }
+.tag.orange { background: rgba(245, 158, 11, 0.14); color: #D97706; border: 1px solid rgba(245, 158, 11, 0.25); }
+.tag.red { background: rgba(220, 38, 38, 0.14); color: #DC2626; border: 1px solid rgba(220, 38, 38, 0.25); }
+.tag.blue { background: rgba(37, 99, 235, 0.14); color: #2563EB; border: 1px solid rgba(37, 99, 235, 0.25); }
+.tag.teal { background: rgba(224, 90, 71, 0.14); color: #E05A47; border: 1px solid rgba(224, 90, 71, 0.28); }
+.tag.gray { background: rgba(113, 113, 122, 0.12); color: #52525b; }
+
+/* ────────── BARRAS DE PROGRESO CON SHIMMER ────────── */
+.progress {
+  height: 8px;
+  background: rgba(220, 210, 200, 0.45);
+  border-radius: 20px;
+  overflow: hidden;
+  min-width: 80px;
+  position: relative;
+}
+
+.progress > span {
+  height: 100%;
+  background: var(--coral-gradient);
+  display: block;
+  border-radius: inherit;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress > span::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
+  animation: fxShimmer 2.4s linear infinite;
+  transform: translateX(-120%);
+}
+
+@keyframes fxShimmer { to { transform: translateX(150%); } }
+
+.progress-meta { display: flex; align-items: center; gap: 9px; font-size: 12px; }
+.stat-line { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 12px; margin-bottom: 8px; }
+.stage-mini { padding: 14px 0; border-bottom: 1px solid rgba(220, 210, 200, 0.35); }
+.stage-mini:last-child { border: 0; }
+.stage-name { font-weight: 750; }
+.tiny-muted { color: var(--muted); font-size: 11px; }
+
+/* ────────── PESTAÑAS DE ETAPAS (Work Stages) ────────── */
+.stage-tabs {
+  display: flex;
+  gap: 9px;
+  overflow: auto;
+  padding: 4px 0 18px;
+}
+
+.stage-tab {
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  color: var(--ink-subtle);
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(120, 60, 30, 0.04);
+  transition: transform 0.2s var(--fx-ease), border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.stage-tab:hover {
+  transform: translateY(-2px);
+  border-color: rgba(224, 90, 71, 0.35);
+  color: #E05A47;
+}
+
+.stage-tab.active {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: var(--coral-gradient);
+  color: #FFF;
+  box-shadow: 0 8px 24px rgba(224, 90, 71, 0.38);
+}
+
+/* ────────── GRID DE LOTES ────────── */
+.lot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.lot-card {
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  transition: transform 0.3s var(--fx-ease), box-shadow 0.3s var(--fx-ease);
+}
+
+.lot-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.lot-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lot-name {
+  font-size: 16px;
+  font-weight: 850;
+  margin: 4px 0 2px;
+  color: var(--ink);
+}
+
+.lot-meta { font-size: 12px; color: var(--muted); }
+
+.lot-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.lot-measure {
+  background: rgba(250, 248, 245, 0.7);
+  border: 1px solid rgba(220, 210, 200, 0.4);
+  border-radius: 12px;
+  padding: 11px 12px;
+}
+
+.lot-measure b {
+  display: block;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  color: var(--ink);
+}
+
+.lot-measure span { font-size: 11px; color: var(--muted); }
+.lot-card .actions { margin-top: 14px; }
+
+/* ────────── MODAL GLASSMORPHISM ────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 15, 18, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal {
+  width: 100%;
+  max-width: 660px;
+  max-height: min(92vh, 920px);
+  overflow: auto;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 35px 95px rgba(20, 10, 15, 0.35);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  animation: fxCardEnter 0.4s var(--fx-ease) both;
+}
+
+.modal-head {
+  padding: 24px 28px 18px;
+  border-bottom: 1px solid rgba(220, 210, 200, 0.45);
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.modal-head h2 { font-size: 21px; margin: 0 0 4px; letter-spacing: -0.03em; color: var(--ink); }
+.modal-head p { font-size: 12.5px; color: var(--muted); margin: 0; }
+
+.icon-close {
+  border: 1px solid rgba(220, 205, 195, 0.7);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--muted);
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-size: 20px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.icon-close:hover { color: #E05A47; border-color: #E05A47; transform: scale(1.05); }
+
+.modal-content { padding: 22px 28px 26px; }
+.modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+
+/* ────────── CAMPOS Y FORMULARIOS DENTRO DEL PANEL ────────── */
+.field { display: flex; flex-direction: column; min-width: 0; }
+.label { font-size: 12px; color: #4b5563; font-weight: 700; display: block; margin-bottom: 6px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid .span2 { grid-column: 1 / -1; }
+
+.field input, .field select, .field textarea, .filters input, .filters select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(215, 205, 195, 0.75);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 10px 13px;
+  font: 500 13px var(--font-sans);
+  outline-color: var(--coral);
+  min-height: 42px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.02);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: #E05A47;
+  box-shadow: 0 0 0 3px rgba(224, 90, 71, 0.16);
+}
+
+.hint { color: var(--muted); font-size: 11px; margin-top: 5px; }
+.form-section { border: 1px solid rgba(220, 210, 200, 0.6); border-radius: 14px; padding: 14px; margin-top: 16px; background: rgba(255, 255, 255, 0.5); }
+.form-section legend { color: #374151; font-weight: 750; font-size: 12px; padding: 0 6px; }
+.size-row { display: grid; grid-template-columns: 1fr 140px auto; gap: 8px; margin-bottom: 8px; align-items: center; }
+.size-row button { min-height: 42px; }
+
+.note {
+  border-left: 3px solid #E05A47;
+  background: rgba(254, 242, 240, 0.7);
+  padding: 12px 14px;
+  border-radius: 0 10px 10px 0;
+  color: #7c2d12;
+  font-size: 12px;
+  margin-top: 16px;
+  line-height: 1.6;
+}
+
+.inline-details { display: flex; gap: 10px; flex-wrap: wrap; margin: 14px 0; }
+.inline-details span { padding: 7px 11px; border-radius: 9px; background: rgba(250, 248, 245, 0.8); border: 1px solid rgba(220, 210, 200, 0.45); color: #52525b; font-size: 12px; font-weight: 600; }
+.detail-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 18px 0; }
+.detail-grid .lot-measure { background: rgba(255, 255, 255, 0.7); }
+
+.compact-list { display: flex; flex-direction: column; }
+.compact-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; border-top: 1px solid rgba(220, 210, 200, 0.35); padding: 12px 0; }
+.compact-row:first-child { border-top: 0; }
+.compact-row-name { font-weight: 750; font-size: 12.5px; }
+.compact-row-desc { color: var(--muted); font-size: 11px; margin-top: 2px; }
+
+.audit-balance {
+  padding: 13px 16px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 12px;
+  background: rgba(240, 253, 244, 0.7);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin: 16px 0;
+}
+
+.audit-balance.error { background: rgba(254, 242, 242, 0.7); border-color: rgba(220, 38, 38, 0.3); }
+.audit-balance b { color: #059669; }
+.audit-balance.error b { color: #DC2626; }
+
+.timeline { display: flex; flex-direction: column; }
+.event { display: flex; gap: 12px; position: relative; padding: 0 0 18px; }
+.event:not(:last-child):before { content: ""; position: absolute; top: 22px; left: 11px; bottom: 1px; width: 1px; background: rgba(220, 210, 200, 0.6); }
+.event-dot { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; background: rgba(224, 90, 71, 0.14); color: #E05A47; font-size: 11px; font-weight: 900; flex-shrink: 0; }
+.event-content { flex: 1; min-width: 0; }
+.event-desc { font-size: 12.5px; font-weight: 700; color: #18181b; }
+.event-extra { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.empty { padding: 38px 24px; color: var(--muted); text-align: center; }
+.empty svg { width: 28px; height: 28px; color: #a1a1aa; display: block; margin: 0 auto 10px; }
+.empty strong { display: block; color: #3f3f46; margin-bottom: 5px; }
+
+.admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.settings-box { padding: 22px; }
+.settings-box h3 { font-size: 16px; margin: 0 0 6px; }
+.settings-box p { color: var(--muted); font-size: 12px; margin: 0 0 16px; }
+.role-dot { display: inline-block; width: 8px; height: 8px; border-radius: 99px; background: #10B981; margin-right: 8px; box-shadow: 0 0 6px #10B981; }
+
+.toast {
+  position: fixed;
+  bottom: 26px;
+  right: 26px;
+  z-index: 200;
+  background: linear-gradient(135deg, #18171a, #241c21);
+  color: white;
+  padding: 14px 20px;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  max-width: min(420px, calc(100vw - 32px));
+  font-weight: 650;
+  font-size: 13px;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s var(--fx-ease);
+}
+
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.bad { background: linear-gradient(135deg, #881337, #4c0519); border-color: rgba(244, 63, 94, 0.3); }
+
+/* ────────── EFECTOS VISUALES V3 (Orbes, Tilt 3D, Ripples) ────────── */
+.fx-atmosphere { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+
+.fx-orb {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: inset 18px 15px 28px rgba(255, 255, 255, 0.75), inset -18px -20px 38px rgba(224, 90, 71, 0.35), 0 20px 48px rgba(224, 90, 71, 0.18);
+  animation: fxOrbFloat var(--dur, 18s) ease-in-out infinite alternate;
+}
+
+.fx-orb.one { width: 190px; height: 190px; top: 6%; left: 26%; --dur: 18s; background: linear-gradient(140deg, rgba(255, 240, 230, 0.65), rgba(224, 90, 71, 0.25)); opacity: 0.45; }
+.fx-orb.two { width: 320px; height: 320px; top: 46%; left: 76%; --dur: 24s; background: linear-gradient(130deg, rgba(254, 240, 210, 0.7), rgba(245, 158, 11, 0.2)); opacity: 0.42; animation-delay: -5s; }
+.fx-orb.three { width: 95px; height: 95px; top: 68%; left: 10%; --dur: 14s; background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(224, 90, 71, 0.28)); opacity: 0.5; animation-delay: -4s; }
+.fx-orb.four { width: 70px; height: 70px; top: 10%; right: 12%; --dur: 12s; background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(240, 101, 67, 0.45)); opacity: 0.6; animation-delay: -3s; }
+
+@keyframes fxOrbFloat {
+  from { transform: translate3d(-18px, 20px, 0) rotate(-12deg) scale(0.98); }
+  to { transform: translate3d(32px, -42px, 0) rotate(18deg) scale(1.12); }
+}
+
+.fx-tilt {
+  position: relative;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  --fx-rx: 0deg;
+  --fx-ry: 0deg;
+  --fx-px: 50%;
+  --fx-py: 50%;
+  --fx-lift: 0px;
+  transform: perspective(950px) rotateX(var(--fx-rx)) rotateY(var(--fx-ry)) translate3d(0, var(--fx-lift), 0) !important;
+  transition: transform 0.32s var(--fx-ease), box-shadow 0.32s var(--fx-ease), border-color 0.32s !important;
+  will-change: transform;
+}
+
+.fx-tilt:hover {
+  --fx-lift: -6px;
+  box-shadow: 0 28px 56px -8px rgba(224, 90, 71, 0.20), 0 0 0 1px rgba(255, 255, 255, 0.95), inset 0 1px #FFF !important;
+  border-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.fx-tilt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(320px circle at var(--fx-px) var(--fx-py), rgba(255, 255, 255, 0.72), rgba(224, 90, 71, 0.15) 32%, transparent 65%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.fx-tilt:hover::after { opacity: 0.85; }
+.fx-tilt > * { position: relative; z-index: 2; }
+
+.fx-ripple {
+  position: absolute;
+  z-index: 9;
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  left: var(--x);
+  top: var(--y);
+  background: rgba(255, 255, 255, 0.85);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0);
+  animation: fxRipple 0.65s ease-out forwards;
+  mix-blend-mode: screen;
+}
+
+@keyframes fxRipple {
+  to { transform: translate(-50%, -50%) scale(20); opacity: 0; }
+}
+
+@keyframes enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes bob { 50% { transform: translateY(-10px); } }
+@keyframes float { 50% { transform: translateY(-10px) rotate(45deg); } }
+
+/* ==========================================================================
+   CASCADA DE ENTRADA STAGGERED
+   ========================================================================== */
+@keyframes fxCardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes fxSlideDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.kpi:nth-child(1) { animation: fxCardEnter 0.6s var(--fx-ease) both 0.08s; }
+.kpi:nth-child(2) { animation: fxCardEnter 0.6s var(--fx-ease) both 0.16s; }
+.kpi:nth-child(3) { animation: fxCardEnter 0.6s var(--fx-ease) both 0.24s; }
+.kpi:nth-child(4) { animation: fxCardEnter 0.6s var(--fx-ease) both 0.32s; }
+.panel:nth-child(1) { animation: fxCardEnter 0.65s var(--fx-ease) both 0.20s; }
+.panel:nth-child(2) { animation: fxCardEnter 0.65s var(--fx-ease) both 0.28s; }
+
+/* ────────── RESPONSIVE ────────── */
+@media(max-width: 1160px) {
+  .app { flex-direction: column; }
+  .sidebar {
+    position: relative;
+    height: auto;
+    width: 100% !important;
+    flex: none !important;
+    padding: 16px 20px;
+  }
+  .sidebar.collapsed { width: 100% !important; }
+  .sidebar-collapse-toggle { display: none !important; }
+  .nav { display: flex; flex-direction: row; overflow-x: auto; white-space: nowrap; }
+  .nav-item { min-width: max-content; }
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .section-grid { grid-template-columns: 1fr; }
+  .lot-grid { grid-template-columns: 1fr; }
+}
+
+@media(max-width: 820px) {
+  body { padding: 0; }
+  .login-shell { grid-template-columns: 1fr; min-height: auto; border-radius: 0; border: 0; }
+  .visual { min-height: 240px; padding: 28px 24px; }
+  .hero-copy { margin-top: 24px; }
+  .hero-copy h1 { font-size: 26px; }
+  .orbit { display: none; }
+  .login-panel { padding: 36px 24px 60px; }
+  .topbar { padding: 0 18px; }
+  .content { padding: 20px 18px 50px; }
+  .kpis { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .detail-grid { grid-template-columns: repeat(2, 1fr); }
+  .admin-grid { grid-template-columns: 1fr; }
+}
+
+@media(max-width: 480px) {
+  .kpis { grid-template-columns: 1fr; }
+  .actions { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div><div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/* TRAMA MVP 1.0: demostración local. No implementa autenticación ni persistencia centralizada. */
+const STORAGE_KEY='trama_textil_mvp_v1';
+const STAGES=['corte','confeccion','acabados','empaque'];
+const LABELS={corte:'Corte',confeccion:'Confección',acabados:'Acabados',empaque:'Empaque'};
+const ICONS={dashboard:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',orders:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5h6M9 9h6M9 13h6M9 17h4"/>',scissors:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="m8.3 8.3 12 12M14.5 9.5 20.3 3.7M8.3 15.7 11 13"/>',wallet:'<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/><circle cx="16" cy="14" r="1"/>',trace:'<path d="M4 7h12M4 12h10M4 17h7"/><circle cx="18" cy="17" r="3"/><path d="m20.2 19.2 2 2"/>',settings:'<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.6-2-3.4-2.4.8a7 7 0 0 0-1.8-1L14.3 3h-4.6l-.4 2.8a7 7 0 0 0-1.8 1L5.1 6l-2 3.4L5 11a7 7 0 0 0 0 2l-1.9 1.6 2 3.4 2.4-.8a7 7 0 0 0 1.8 1l.4 2.8h4.6l.4-2.8a7 7 0 0 0 1.8-1l2.4.8 2-3.4L19 13a7 7 0 0 0 0-1Z"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="m5 12 4 4L19 6"/>',close:'<path d="M18 6 6 18M6 6l12 12"/>',box:'<path d="m12 2 9 5-9 5-9-5 9-5ZM3 7v10l9 5 9-5V7M12 12v10"/>',warning:'<path d="m12 3 10 18H2L12 3Z"/><path d="M12 9v4m0 4v.1"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',chev:'<path d="m9 18 6-6-6-6"/>',download:'<path d="M12 3v13m-5-5 5 5 5-5M4 18v3h16v-3"/>',info:'<circle cx="12" cy="12" r="10"/><path d="M12 11v6m0-10v.1"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 22a8 8 0 0 1 16 0"/>',filter:'<path d="M3 6h18M6 12h12M9 18h6"/>',layers:'<path d="m12 3 9 5-9 5-9-5 9-5Zm-9 9 9 5 9-5M3 16l9 5 9-5"/>'};
+const icon=(id)=>`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[id]||ICONS.box}</svg>`;
+const esc=(v)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=(v)=>Number(v)||0, fmt=(v)=>new Intl.NumberFormat('es-CO').format(num(v)), now=()=>new Date().toISOString(), time=(x)=>new Date(x).toLocaleString('es-CO',{dateStyle:'short',timeStyle:'short'});
+const id=(prefix)=>prefix+'-'+(globalThis.crypto?.randomUUID?crypto.randomUUID().slice(0,8):Math.random().toString(36).slice(2,11)).toUpperCase();
+const clone=(x)=>JSON.parse(JSON.stringify(x));
+const blankStocks=(qty)=>({corte:{pending:qty,ready:0},confeccion:{pending:0,ready:0},acabados:{pending:0,ready:0},empaque:{pending:0,ready:0},transit:0,held:0,incidents:0,finished:0,scrap:0});
+const PLANT_CATALOG=[
+  {area:'corte',areaName:'Corte',task:'Tender y trazar · Cortar piezas',cost:2300,worker:'Camila',workers:['Camila','Mateo'],defaultActive:true},
+  {area:'sublimacion',areaName:'Sublimación',task:'Imprimir y sublimar',cost:2500,worker:'Julián',workers:['Julián'],defaultActive:true},
+  {area:'confeccion',areaName:'Costura / Confección',task:'Coser · Pegar elástico',cost:4700,worker:'Laura',workers:['Laura'],defaultActive:true},
+  {area:'acabados',areaName:'Fileteado / Acabados',task:'Filetear costuras · Ruedo y puños',cost:2400,worker:'Andrés',workers:['Andrés'],defaultActive:true},
+  {area:'empaque',areaName:'Empaque',task:'Doblar · Empaquetar y etiquetar',cost:1200,worker:'Valentina',workers:['Valentina','Sofía'],defaultActive:true}
+];
+let db,view='dashboard',stageView='corte',lotChoice='',orderChoice='',modal=null,filterText='',toastTimer,weekOffset=0,loggedIn=false;
+function defaultDB(){return {version:1,demo:true,seq:{order:0,lot:0,transfer:0},users:[{id:'u1',name:'Administrador',role:'admin'},{id:'u2',name:'Supervisora de planta',role:'supervisor'},{id:'u3',name:'Camila (Corte)',role:'corte'},{id:'u4',name:'Laura (Confección)',role:'confeccion'},{id:'u5',name:'Andrés (Acabados)',role:'acabados'},{id:'u6',name:'Valentina (Empaque)',role:'empaque'},{id:'u7',name:'Julián (Sublimación)',role:'confeccion'}],currentUser:'u1',orders:[],lots:[],settlements:[],transfers:[],holds:[],incidents:[],events:[]};}
+const current=()=>db.users.find(u=>u.id===db.currentUser)||db.users[0];
+const isManager=()=>['admin','supervisor'].includes(current().role);
+const authorized=(stage)=>isManager()||current().role===stage;
+const hasAdmin=()=>current().role==='admin';
+function requireRight(condition,msg='No tienes permisos para realizar esta acción en la demostración.') {if(!condition)throw Error(msg);}
+function notify(msg,bad=false){let el=document.getElementById('toast');el.textContent=msg;el.className='toast show'+(bad?' bad':'');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.className='toast',4000)}
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));}catch(err){notify('No se pudo guardar en este navegador. Exporta una copia JSON.',true)}}
+function getLot(lotId){const x=db.lots.find(l=>l.id===lotId);if(!x)throw Error('No se encontró el lote.');return x;}
+function getOrder(orderId){return db.orders.find(o=>o.id===orderId);}
+function sumStock(l){return STAGES.reduce((a,s)=>a+l.stocks[s].pending+l.stocks[s].ready,0)+l.stocks.transit+l.stocks.held+l.stocks.incidents+l.stocks.finished+l.stocks.scrap;}
+function verifyAll(data=db){for(const l of data.lots){if(!Number.isInteger(l.planned)||l.planned<=0||!l.stocks)throw Error('Lote inválido');for(const s of STAGES){if(!l.stocks[s]||!Number.isInteger(l.stocks[s].pending)||!Number.isInteger(l.stocks[s].ready)||l.stocks[s].pending<0||l.stocks[s].ready<0)throw Error('Saldo de área inválido')}for(const k of ['transit','held','incidents','finished','scrap'])if(!Number.isInteger(l.stocks[k])||l.stocks[k]<0)throw Error('Saldo de control inválido');if(sumStock(l)!==l.planned)throw Error('Descuadre del lote '+l.code)}}
+function transact(fn){const old=clone(db);try{fn();verifyAll();save();modal=null;render();notify('Operación registrada correctamente.');}catch(err){db=old;notify(err.message||'No fue posible completar la operación.',true);console.error(err)}}
+function log(lotId,type,description,qty,actor,meta={}){db.events.push({id:id('EV'),lotId,type,description,qty,actor:actor||current().name,when:now(),meta});}
+function createOrder(input,actor){let lines=input.lines.filter(r=>Number(r.qty)>0);if(!lines.length)throw Error('Debes especificar al menos una talla y cantidad.');if(!input.reference?.trim()||!input.design?.trim())throw Error('Referencia y diseño son obligatorios.');if(lines.some(r=>!Number.isInteger(Number(r.qty))||Number(r.qty)<=0))throw Error('Las cantidades deben ser enteros positivos.');let sizes=new Set();for(const l of lines){const key=String(l.size||'').trim().toUpperCase();if(!key||sizes.has(key))throw Error('Las tallas deben ser únicas y no vacías.');sizes.add(key)}const year=new Date().getFullYear(),orderId=id('OP'),code=`OP-${year}-${String(++db.seq.order).padStart(3,'0')}`;const totalUnits=lines.reduce((s,l)=>s+Number(l.qty),0);const assignments=input.assignments&&input.assignments.length?input.assignments:clone(PLANT_CATALOG);const unitLaborCost=assignments.reduce((s,t)=>s+Number(t.cost||0),0);const totalLaborCost=unitLaborCost*totalUnits;db.orders.push({id:orderId,code,reference:input.reference.trim().toUpperCase(),design:input.design.trim().toUpperCase(),customer:(input.customer||'Producción para inventario').trim(),due:input.due||'',notes:input.notes||'',assignments,laborCostSnapshot:{unitCost:unitLaborCost,totalCost:totalLaborCost},createdAt:now(),createdBy:actor||current().name});for(const line of lines){const lotId=id('LOT'),lotCode=`LT-${year}-${String(++db.seq.lot).padStart(4,'0')}`,planned=Number(line.qty);db.lots.push({id:lotId,code:lotCode,orderId,size:String(line.size).trim().toUpperCase(),planned,stocks:blankStocks(planned),createdAt:now()});log(lotId,'CREADA',`Orden ${code} creada. ${planned} unidades a Corte. M.O. congelada: $ ${fmt(unitLaborCost)}/ud.`,planned,actor,{stage:'corte',qty:planned,orderId});}return orderId;}
+function processLot(lotId,stage,good,actor){const l=getLot(lotId),b=l.stocks[stage];good=Number(good);if(!STAGES.includes(stage))throw Error('Área incorrecta.');if(!Number.isInteger(good)||good<=0||good>b.pending)throw Error(`Debes ingresar una cantidad válida entre 1 y ${b.pending}.`);b.pending-=good;const idx=STAGES.indexOf(stage);if(idx<STAGES.length-1){const nextStage=STAGES[idx+1];l.stocks[nextStage].pending+=good;}else{l.stocks.finished+=good;}const o=getOrder(l.orderId);const assign=(o?.assignments||[]).find(a=>a.area===stage)||PLANT_CATALOG.find(a=>a.area===stage);const worker=actor||assign?.worker||current().name;log(lotId,'TRABAJO',`${LABELS[stage]}: ${good} unidades completadas por ${worker}.${idx===STAGES.length-1?' Ingresadas a Producto Terminado.':` Avanzadas a ${LABELS[STAGES[idx+1]]}.`}`,good,worker,{stage,qty:good,orderId:l.orderId,cost:assign?.cost||0});}
+function getWeekNumber(d){const target=new Date(d.valueOf());const dayNr=(d.getDay()+6)%7;target.setDate(target.getDate()-dayNr+3);const firstThursday=target.valueOf();target.setMonth(0,1);if(target.getDay()!==4)target.setMonth(0,1+((4-target.getDay())+7)%7);return 1+Math.ceil((firstThursday-target)/604800000);}
+function getWeekRange(offset=0){const now=new Date();const day=now.getDay();const diffToMonday=(day===0?-6:1)-day;const monday=new Date(now);monday.setDate(now.getDate()+diffToMonday+(offset*7));monday.setHours(0,0,0,0);const sunday=new Date(monday);sunday.setDate(monday.getDate()+6);sunday.setHours(23,59,59,999);const weekKey=`${monday.getFullYear()}-W${String(getWeekNumber(monday)).padStart(2,'0')}`;const label=`${monday.toLocaleDateString('es-CO',{day:'numeric',month:'short'})} – ${sunday.toLocaleDateString('es-CO',{day:'numeric',month:'short',year:'numeric'})}`;return {monday,sunday,weekKey,label,offset};}
+function getPayItemsForWeek(range){const {monday,sunday,weekKey}=range;db.settlements=db.settlements||[];const settlement=db.settlements.find(s=>s.weekKey===weekKey);if(settlement&&settlement.items){return {isClosed:true,settlement,items:settlement.items,total:settlement.total,people:settlement.people};}const items=[];for(const e of db.events){if(e.type!=='TRABAJO'&&e.type!=='PROCESO')continue;const when=new Date(e.when);if(when<monday||when>sunday)continue;const l=db.lots.find(x=>x.id===e.lotId);if(!l)continue;const o=db.orders.find(x=>x.id===l.orderId);if(!o)continue;const stage=e.meta?.stage||(e.description.toLowerCase().includes('corte')?'corte':e.description.toLowerCase().includes('confección')||e.description.toLowerCase().includes('confeccion')?'confeccion':e.description.toLowerCase().includes('acabados')?'acabados':e.description.toLowerCase().includes('empaque')?'empaque':'corte');const assignment=(o.assignments||[]).find(a=>a.area===stage)||PLANT_CATALOG.find(a=>a.area===stage)||{task:LABELS[stage],cost:2000,worker:e.actor||'Operario',workers:[e.actor||'Operario']};const qty=Number(e.qty)||0;const rawWorkers=assignment.workers&&assignment.workers.length?assignment.workers:[assignment.worker];const n=rawWorkers.length;const unitRate=assignment.cost;const splitRate=Math.round(unitRate/n);for(let i=0;i<n;i++){const workerName=rawWorkers[i];const personRate=(i===n-1)?(unitRate-splitRate*(n-1)):splitRate;const subtotal=qty*personRate;items.push({id:e.id+'-'+i,eventId:e.id,lotId:l.id,lotCode:l.code,orderId:o.id,orderCode:o.code,reference:o.reference,design:o.design,size:l.size,stage:stage,areaName:LABELS[stage]||stage,task:assignment.task,worker:workerName,isTeam:n>1,teamCount:n,qty:qty,unitRate:personRate,fullRate:unitRate,total:subtotal,when:e.when});}}const peopleMap={};for(const it of items){if(!peopleMap[it.worker]){peopleMap[it.worker]={name:it.worker,total:0,units:0,items:[]};}peopleMap[it.worker].total+=it.total;peopleMap[it.worker].units+=it.qty;peopleMap[it.worker].items.push(it);}const people=Object.values(peopleMap).sort((a,b)=>b.total-a.total);const total=items.reduce((s,it)=>s+it.total,0);return {isClosed:false,settlement:null,items,total,people};}
+function closeWeek(weekKey){requireRight(isManager());const range=getWeekRange(weekOffset);if(range.weekKey!==weekKey)throw Error('La semana a cerrar no coincide.');const data=getPayItemsForWeek(range);if(!data.items.length)throw Error('No hay movimientos registrados para cerrar en esta semana.');db.settlements=db.settlements||[];if(db.settlements.some(s=>s.weekKey===weekKey))throw Error('Esta semana ya se encuentra cerrada.');db.settlements.push({weekKey,weekLabel:range.label,closedAt:now(),closedBy:current().name,total:data.total,peopleCount:data.people.length,unitsCount:data.items.reduce((s,i)=>s+i.qty,0),items:clone(data.items),people:clone(data.people)});}
+function reopenWeek(weekKey){requireRight(hasAdmin(),'Solo el Administrador puede reabrir una semana cerrada.');db.settlements=db.settlements||[];const idx=db.settlements.findIndex(s=>s.weekKey===weekKey);if(idx<0)throw Error('No se encontró el cierre de esta semana.');db.settlements.splice(idx,1);}
+function exportPayrollCSV(range,data){const rows=[['Semana','Persona','Área','Tarea','Orden','Referencia','Diseño','Lote','Talla','Unidades','Tarifa unitaria COP','Total COP']];for(const it of data.items){rows.push([range.weekKey,it.worker,it.areaName,it.task,it.orderCode,it.reference,it.design,it.lotCode,it.size,it.qty,it.unitRate,it.total]);}download('Liquidacion_'+range.weekKey+'.csv','\ufeff'+rows.map(r=>r.map(csvSafe).join(';')).join('\r\n'),'text/csv');}
+function createDemo(){db=defaultDB();db.settlements=[];const allTasks=clone(PLANT_CATALOG);let a=createOrder({reference:'PIJAMA SHORT NIÑO',design:'RAPUNZEL',customer:'Inventario para temporada',due:'',lines:[{size:'6',qty:8},{size:'8',qty:8},{size:'10',qty:8}],assignments:allTasks},'Sistema de demostración');let b=createOrder({reference:'PIJAMA PANTALÓN NIÑO',design:'STICH AZUL NAVIDAD',customer:'Pedido mayorista — ejemplo',lines:[{size:'6',qty:12},{size:'8',qty:12}],assignments:allTasks},'Sistema de demostración');let c=createOrder({reference:'SHORT TIRA DAMA',design:'MÁRMOL ROSA',customer:'Colección tienda',lines:[{size:'S',qty:10},{size:'M',qty:10},{size:'L',qty:10}],assignments:allTasks.filter(t=>t.area!=='sublimacion')},'Sistema de demostración');let [a1,a2,a3]=db.lots.filter(l=>l.orderId===a);processLot(a1.id,'corte',8,'Camila');processLot(a1.id,'confeccion',8,'Laura');processLot(a1.id,'acabados',8,'Andrés');processLot(a1.id,'empaque',8,'Valentina');processLot(a2.id,'corte',8,'Camila');processLot(a2.id,'confeccion',6,'Laura');processLot(a3.id,'corte',8,'Camila');let b1=db.lots.find(l=>l.orderId===b);processLot(b1.id,'corte',12,'Mateo');processLot(b1.id,'confeccion',5,'Laura');let c1=db.lots.find(l=>l.orderId===c);processLot(c1.id,'corte',10,'Camila');verifyAll();return db;}
+function init(){try{const raw=localStorage.getItem(STORAGE_KEY);if(raw){const d=JSON.parse(raw);if(d.version!==1||!Array.isArray(d.orders)||!Array.isArray(d.lots)||!Array.isArray(d.transfers)||!Array.isArray(d.holds)||!Array.isArray(d.incidents)||!Array.isArray(d.events)||!Array.isArray(d.users))throw Error('Formato no compatible');db=d;verifyAll();if(!db.users.some(u=>u.id===db.currentUser))db.currentUser=db.users[0].id;for(const o of db.orders){if(!o.assignments)o.assignments=clone(PLANT_CATALOG);if(!o.laborCostSnapshot){const unit=o.assignments.reduce((a,t)=>a+t.cost,0);const target=db.lots.filter(l=>l.orderId===o.id).reduce((s,l)=>s+l.planned,0);o.laborCostSnapshot={unitCost:unit,totalCost:unit*target};}}}else createDemo();}catch(err){console.warn('No se pudo restaurar archivo local',err);createDemo();}try{ if(sessionStorage.getItem('trama_logged_in')==='true') loggedIn=true; }catch{} save();render();}
+function totals(){return db.lots.reduce((o,l)=>(o.planned+=l.planned,o.finished+=l.stocks.finished,o.transit+=l.stocks.transit,o.quality+=l.stocks.held+l.stocks.incidents,o.scrap+=l.stocks.scrap,o),{planned:0,finished:0,transit:0,quality:0,scrap:0});}
+function orderLots(o){return db.lots.filter(l=>l.orderId===o.id);}
+function orderProgress(o){const ls=orderLots(o),target=ls.reduce((s,l)=>s+l.planned,0),done=ls.reduce((s,l)=>s+l.stocks.finished,0),worked=ls.some(l=>l.stocks.corte.pending<l.planned);return {target,done,worked,pct:target?Math.round(done/target*100):0};}
+function orderStatus(p){return p.done===p.target?'Finalizada':p.worked?'En proceso':'Pendiente';}
+function tag(text,kind='gray'){return `<span class="tag ${kind}">${esc(text)}</span>`;}
+function lotDetail(l){const o=getOrder(l.orderId);return `${o?o.reference+' · '+o.design:'Orden sin referencia'} · Talla ${l.size}`;}
+function lineProgress(p){return `<div class="progress-meta"><div class="progress" style="flex:1"><span style="width:${p.pct}%"></span></div><span class="mono">${p.pct}%</span></div>`;}
+function header(title,desc,action=''){return `<div class="pagehead"><div><div class="eyebrow">Operación / ${esc(title)}</div><h1>${esc(title)}</h1><p>${esc(desc)}</p></div><div class="actions">${action}</div></div>`;}
+function demoBanner(){return `<div class="banner">${icon('info')}<span>${db.demo?'<strong>Prototipo local con datos de ejemplo.</strong> Los nombres de algunas referencias proceden del tipo de registros de «PIMIENTA OCTUBRE», pero <strong>los lotes y movimientos son simulados</strong>.':'<strong>Entorno local para tus propias órdenes.</strong> No hay conexión con el Excel ni un servidor compartido.'} Todo se guarda únicamente en este navegador; el selector de usuarios es una simulación de roles, no una autenticación segura.</span></div>`;}
+
+function renderLogin(){
+  const savedEmail = (()=>{ try { return localStorage.getItem('trama_demo_email') || ''; } catch { return ''; } })();
+  return `<div class="login-view-container">
+    <div class="login-shell">
+      <section class="visual" id="visual" aria-label="Presentación TRAMA / Pimienta">
+        <div class="brand-login"><div class="brand-mark">T</div><div><div class="brand-title">TRAMA</div><div class="brand-sub">PIMIENTA · MODA Y ESTILO</div></div></div>
+        <div class="hero-copy">
+          <div class="hero-eyebrow">Control de producción & destajo</div>
+          <h1>Planta textil.<br>Destajo en vivo.</h1>
+          <p>Supervisión transparente de lotes, balanceo por áreas y liquidación semanal de operarios a destajo con precisión de centavos.</p>
+        </div>
+        <div class="orbit" id="orbit" aria-hidden="true">
+          <div class="ring"></div><div class="halo"></div><div class="mini-logo">T</div>
+          <div class="node n1"></div><div class="node n2"></div><div class="node n3"></div>
+          <div class="data-chip chip-left"><small>Liquidación semanal</small><strong>DESTADO REAL LUN–DOM</strong></div>
+          <div class="data-chip chip-right"><small>Balance de lotes</small><strong><i class="chip-dot"></i> Sin descuadres</strong></div>
+        </div>
+        <div class="visual-footer">
+          <span>CORTE • CONFECCIÓN • ACABADOS • EMPAQUE</span>
+          <span class="live">● Control en tiempo real</span>
+        </div>
+      </section>
+      <section class="login-panel">
+        <div class="top-tag">ACCESO SEGURO</div>
+        <div class="form-wrap">
+          <div class="lock-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/><path d="M12 15v2"/></svg>
+          </div>
+          <h2>Bienvenido al taller.</h2>
+          <p class="login-intro">Ingresa tus credenciales para gestionar órdenes, registrar avance en planta y liquidar destajo semanal.</p>
+          <form id="login-form" novalidate>
+            <div class="login-field">
+              <label for="login-email">Correo electrónico</label>
+              <div class="input-shell">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg>
+                <input id="login-email" name="email" type="email" inputmode="email" autocomplete="username" placeholder="admin@pimienta.com" value="${esc(savedEmail)}" required />
+              </div>
+            </div>
+            <div class="login-field">
+              <label for="login-password">Contraseña de acceso</label>
+              <div class="input-shell">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>
+                <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Mínimo 6 caracteres" required minlength="6" />
+                <button type="button" class="eye-btn" id="show-password" aria-label="Mostrar contraseña" title="Mostrar contraseña">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="login-options">
+              <label class="remember">
+                <input id="remember-email" type="checkbox" ${savedEmail?'checked':''}/> Recordar acceso
+              </label>
+              <a class="forgot-link" id="forgot-password" href="#">¿Olvidaste tu clave?</a>
+            </div>
+            <button class="submit-btn" type="submit">
+              <span>Ingresar al sistema</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16m-6-6 6 6-6 6"/></svg>
+            </button>
+            <div class="login-message" id="login-message" role="status" aria-live="polite"></div>
+          </form>
+          <p class="login-helper">Entorno de producción local — <strong>autenticación simulada activa.</strong><br/>Puedes ingresar con cualquier correo o usar los usuarios del selector interno.</p>
+        </div>
+        <div class="demo-pill"><span></span> PIMIENTA MODA Y ESTILO • TRAMA V24</div>
+      </section>
+    </div>
+  </div>`;
+}
+
+function renderShell(){
+  const navs=[['dashboard','dashboard','Resumen'],['orders','orders','Órdenes'],['work','scissors','Producción'],['payroll','wallet','Liquidación semanal'],['admin','settings','Administración']];
+  return `<div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-sidebar">
+        <div class="brand-symbol">T</div>
+        <div>
+          <div class="brand-name">TRAMA</div>
+          <div class="brand-caption">Pimienta · Moda y estilo</div>
+        </div>
+        <button type="button" class="sidebar-collapse-toggle" id="sidebar-toggle" aria-label="Colapsar barra lateral" title="Colapsar / Expandir (Ctrl+B)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+      </div>
+      <div class="menu-label">Planta y control</div>
+      <nav class="nav" id="sidebar-nav" aria-label="Navegación principal">
+        <div class="fx-nav-track" id="nav-track" aria-hidden="true"></div>
+        ${navs.map(([key,ic,label])=>`<button class="nav-item ${view===key?'active':''}" data-nav="${key}">${icon(ic)}<span>${label}</span></button>`).join('')}
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="side-foot">
+          <span class="online-dot"></span><strong>Planta en línea</strong><br>Destajo y lotes · 4 áreas<br>TRAMA Glass V24
+        </div>
+        <button type="button" class="sidebar-logout" data-action="logout" title="Cerrar sesión de trabajo">
+          ${icon('close')}<span>Cerrar sesión</span>
+        </button>
+      </div>
+    </aside>
+    <main class="main" id="main-content">
+      <header class="topbar">
+        <div class="breadcrumb">TRAMA <span style="padding:0 6px;color:#c2ccd7">/</span> <b>${esc({dashboard:'Resumen general',orders:'Órdenes',work:'Producción',payroll:'Liquidación semanal',admin:'Administración'}[view]||'Producción')}</b></div>
+        <div class="top-controls">
+          <div class="avatar">${esc(current().name.charAt(0).toUpperCase())}</div>
+          <label class="screen-reader" for="active-user">Usuario activo</label>
+          <select id="active-user" class="user-pick" title="Cambiar usuario de prueba">${db.users.map(u=>`<option value="${esc(u.id)}" ${u.id===db.currentUser?'selected':''}>${esc(u.name)} (${esc(roleText(u.role))})</option>`).join('')}</select>
+        </div>
+      </header>
+      <div class="content">${demoBanner()}${pageView()}</div>
+    </main>
+  </div>${modal?renderModal():''}`;
+}
+function roleText(r){return {admin:'Admin',supervisor:'Supervisor',corte:'Corte',confeccion:'Confección',acabados:'Acabados',empaque:'Empaque'}[r]||r;}
+function pageView(){if(view==='trace'){view='work';stageView='trazabilidad';}return ({dashboard:renderDashboard,orders:renderOrders,work:renderWork,payroll:renderPayroll,admin:renderAdmin}[view]||renderDashboard)();}
+function kpi(label,val,note,ic){return `<div class="kpi"><div class="kpi-head"><span>${esc(label)}</span><span class="kpi-icon">${icon(ic)}</span></div><div class="kpi-value">${fmt(val)}</div><div class="kpi-note">${esc(note)}</div></div>`;}
+function renderDashboard(){const t=totals(),curRange=getWeekRange(weekOffset),curPay=getPayItemsForWeek(curRange),activeOrders=db.orders.filter(o=>orderProgress(o).pct<100).length,evs=[...db.events].reverse().slice(0,6);return `${header('Centro de producción y destajo','Visibilidad de órdenes, avance en planta y liquidación semanal por destajo en tiempo real.',`<button class="btn" data-action="new-order" ${isManager()?'':'disabled'}>${icon('plus')} Nueva orden</button>`)}<div class="kpis">${kpi('Unidades planificadas',t.planned,`${db.orders.length} órdenes registradas`,'layers')}${kpi('Producto terminado',t.finished,t.planned?`${Math.round(t.finished/t.planned*100)}% de lo planificado`:'Sin órdenes','check')}${kpi('Destajo semana activa','$ '+fmt(curPay.total),`${curPay.people.length} personas con pago · ${curRange.label}`,'wallet')}${kpi('Órdenes activas',activeOrders,'Producción en marcha','scissors')}</div><div class="section-grid"><section class="panel"><div class="panel-head"><div><div class="panel-title">Órdenes recientes</div><div class="panel-sub">Avance hasta producto terminado y mano de obra</div></div><button class="btn secondary sm" data-nav="orders">Ver todas ${icon('chev')}</button></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Orden / referencia</th><th>Meta</th><th>Terminadas</th><th>Avance</th><th>M.O. Prenda</th></tr></thead><tbody>${[...db.orders].reverse().slice(0,5).map(o=>{let p=orderProgress(o),snap=o.laborCostSnapshot||{unitCost:13100};return `<tr><td><span class="maincol mono">${esc(o.code)}</span><div class="subcol">${esc(o.reference)} · ${esc(o.design)}</div></td><td class="mono">${fmt(p.target)}</td><td class="mono">${fmt(p.done)}</td><td style="min-width:130px">${lineProgress(p)}</td><td class="mono"><strong>$ ${fmt(snap.unitCost)}</strong></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">No hay órdenes registradas.</td></tr>'}</tbody></table></div></section><section class="panel"><div class="panel-head"><div><div class="panel-title">Estado de planta por etapa</div><div class="panel-sub">Unidades pendientes de proceso</div></div></div><div class="panel-body">${STAGES.map(s=>{let pend=db.lots.reduce((a,l)=>a+l.stocks[s].pending,0),max=Math.max(1,t.planned);return `<div class="stage-mini"><div class="stat-line"><span class="stage-name">${LABELS[s]}</span><span><b>${fmt(pend)}</b> <span class="tiny-muted">uds pendientes</span></span></div><div class="progress"><span style="width:${Math.min(100,(pend/max)*100)}%"></span></div></div>`}).join('')}<div class="inline-details">${tag('Destajo activo: $ '+fmt(curPay.total),'teal')}${tag(curPay.people.length+' operarios en nómina','green')}</div></div></section></div><div class="section-grid"><section class="panel"><div class="panel-head"><div><div class="panel-title">Actividad de producción</div><div class="panel-sub">Historial de registros y avances</div></div><button class="btn secondary sm" data-nav="payroll">Liquidación ${icon('chev')}</button></div><div class="panel-body"><div class="timeline">${evs.map(e=>`<div class="event"><div class="event-dot">${e.type==='TRABAJO'?'✓':e.type==='CREADA'?'✦':'•'}</div><div class="event-content"><div class="event-desc">${esc(e.description)}</div><div class="event-extra">${esc(getLot(e.lotId)?.code||'')} · ${esc(e.actor)} · ${time(e.when)}</div></div></div>`).join('')||'<div class="empty">Aún no hay movimientos.</div>'}</div></div></section><section class="panel"><div class="panel-head"><div><div class="panel-title">Reglas de planta y destajo</div><div class="panel-sub">Modelo operativo Pimienta</div></div></div><div class="panel-body"><div class="compact-list"><div class="compact-row"><div><div class="compact-row-name">Destajo = Tarifa × Unidades</div><div class="compact-row-desc">Pago por prendas efectivamente procesadas en cada área.</div></div>${tag('Activo','green')}</div><div class="compact-row"><div><div class="compact-row-name">Tarifas congeladas en la OP</div><div class="compact-row-desc">Cambios en el catálogo no alteran el valor pactado de la orden.</div></div>${tag('Activo','green')}</div><div class="compact-row"><div><div class="compact-row-name">Reparto de equipos 1/N</div><div class="compact-row-desc">Parejas de taller o empaque dividen la tarifa equitativamente.</div></div>${tag('Activo','green')}</div><div class="compact-row"><div><div class="compact-row-name">Cierre semanal Lun–Dom</div><div class="compact-row-desc">Permite cerrar la nómina y congelar montos pagados.</div></div>${tag('Activo','green')}</div></div></div></section></div>`;}
+function renderOrders(){return `${header('Órdenes de producción','Cada orden contiene curva de tallas por lote y asignación congelada de tareas con tarifa de mano de obra.',`<button class="btn" data-action="new-order" ${isManager()?'':'disabled'}>${icon('plus')} Crear orden</button>`)}<section class="panel"><div class="panel-head"><div><div class="panel-title">Órdenes registradas</div><div class="panel-sub">${db.orders.length} órdenes · ${db.lots.length} lotes</div></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Orden</th><th>Referencia / diseño</th><th>Cliente / destino</th><th>Lotes</th><th>Unidades</th><th>Mano de obra</th><th>Avance</th><th>Detalle</th></tr></thead><tbody>${[...db.orders].reverse().map(o=>{let p=orderProgress(o);let unitM=o.laborCostSnapshot?.unitCost||(o.assignments||[]).reduce((a,t)=>a+t.cost,0)||13100;let totM=o.laborCostSnapshot?.totalCost||(unitM*p.target);return `<tr><td class="maincol mono">${esc(o.code)}<div class="subcol">${time(o.createdAt)}</div></td><td><div class="maincol">${esc(o.reference)}</div><div class="subcol">${esc(o.design)}</div></td><td>${esc(o.customer)}</td><td>${orderLots(o).length}</td><td><strong>${fmt(p.done)}</strong> / ${fmt(p.target)}</td><td class="mono"><strong>$ ${fmt(unitM)}</strong><div class="subcol">Total: $ ${fmt(totM)}</div></td><td style="min-width:130px">${lineProgress(p)}</td><td><button class="btn secondary sm" data-action="order-detail" data-id="${esc(o.id)}">Ver detalle</button></td></tr>`}).join('')||'<tr><td colspan="8" class="empty">Crea la primera orden de producción.</td></tr>'}</tbody></table></div></section>${orderChoice&&db.orders.some(o=>o.id===orderChoice)?renderOrderDetail(getOrder(orderChoice)):''}`;}
+function renderOrderDetail(o){const ls=orderLots(o),p=orderProgress(o);const snap=o.laborCostSnapshot||{unitCost:(o.assignments||[]).reduce((a,t)=>a+t.cost,0)||13100,totalCost:0};const unitCost=snap.unitCost||(o.assignments||[]).reduce((a,t)=>a+t.cost,0);const totalCost=snap.totalCost||(unitCost*p.target);const earnedCost=unitCost*p.done;const assignments=o.assignments&&o.assignments.length?o.assignments:PLANT_CATALOG;return `<section class="panel" style="margin-top:18px"><div class="panel-head"><div><div class="panel-title">${esc(o.code)} · ${esc(o.design)}</div><div class="panel-sub">${esc(o.reference)} · ${esc(o.customer)} · ${fmt(p.target)} unidades</div></div><button class="btn secondary sm" data-action="close-order-detail">Cerrar</button></div><div class="panel-body" style="padding-bottom:6px"><div class="detail-grid" style="margin:12px 0 16px"><div class="lot-measure"><b>$ ${fmt(unitCost)}</b><span>M.O. / Prenda (congelada)</span></div><div class="lot-measure"><b>$ ${fmt(totalCost)}</b><span>Presupuesto total M.O.</span></div><div class="lot-measure"><b>$ ${fmt(earnedCost)}</b><span>Devengado (${p.done} uds listas)</span></div><div class="lot-measure"><b>$ ${fmt(totalCost-earnedCost)}</b><span>Saldo pendiente M.O.</span></div></div><div style="font-weight:760;font-size:12.5px;color:#33455b;margin:12px 0 6px">Asignación de Planta y Tarifas por Prenda</div><div class="table-wrap" style="margin-bottom:18px"><table class="data-table"><thead><tr><th>Área de planta</th><th>Tarea asignada</th><th>Persona responsable</th><th>Tarifa / prenda</th><th>Total asignado OP</th></tr></thead><tbody>${assignments.map(a=>`<tr><td class="maincol">${esc(a.areaName)}</td><td>${esc(a.task)}</td><td><span class="tag teal">👤 ${esc(a.worker)}</span></td><td class="mono"><strong>$ ${fmt(a.cost)}</strong></td><td class="mono">$ ${fmt(a.cost*p.target)}</td></tr>`).join('')}</tbody></table></div><div style="font-weight:760;font-size:12.5px;color:#33455b;margin:10px 0 6px">Lotes por Talla (Curva de Producción)</div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Lote</th><th>Talla</th><th>Meta</th><th>Corte</th><th>Confección</th><th>Acabados</th><th>Empaque</th><th>Terminadas</th><th>Detalle</th></tr></thead><tbody>${ls.map(l=>`<tr><td class="maincol mono">${esc(l.code)}</td><td>${esc(l.size)}</td><td>${fmt(l.planned)}</td>${STAGES.map(s=>`<td>${fmt(l.stocks[s].pending)}</td>`).join('')}<td><strong>${fmt(l.stocks.finished)}</strong></td><td><button class="btn secondary sm" data-action="trace-lot" data-id="${esc(l.id)}">Historial</button></td></tr>`).join('')}</tbody></table></div></section>`;}
+function renderWork(){const isTrace=stageView==='trazabilidad';const tabs=[...STAGES.map(s=>`<button class="stage-tab ${s===stageView?'active':''}" data-stage="${s}">${LABELS[s]}</button>`),`<button class="stage-tab ${isTrace?'active':''}" data-stage="trazabilidad">${icon('trace')} Trazabilidad y auditoría</button>`].join('');if(isTrace){const selected=db.lots.find(l=>l.id===lotChoice)||db.lots[0];if(selected)lotChoice=selected.id;const events=selected?[...db.events].filter(e=>e.lotId===selected.id).reverse():[];return `${header('Producción / Trazabilidad por lote','Consulta el saldo de cada área, movimientos e historial de auditoría de cualquier lote sin salir de Producción.')}<div class="stage-tabs">${tabs}</div><div class="filters"><label class="screen-reader" for="lot-choice">Elegir lote</label><select id="lot-choice" aria-label="Elegir lote">${db.lots.map(l=>`<option value="${esc(l.id)}" ${l.id===lotChoice?'selected':''}>${esc(l.code)} · ${esc(getOrder(l.orderId).design)} · Talla ${esc(l.size)}</option>`).join('')}</select><button class="btn secondary" data-action="export-csv">${icon('download')} CSV de saldos</button></div>${selected?`<div class="section-grid trace-layout"><section class="panel"><div class="panel-head"><div><div class="panel-title">${esc(selected.code)} · Talla ${esc(selected.size)}</div><div class="panel-sub">${esc(lotDetail(selected))}</div></div></div><div class="panel-body">${traceTable(selected)}</div></section><section class="panel"><div class="panel-head"><div><div class="panel-title">Historial inalterado por operaciones</div><div class="panel-sub">${events.length} eventos registrados para este lote</div></div></div><div class="panel-body"><div class="timeline" style="max-height:590px;overflow:auto">${events.map(e=>`<div class="event"><div class="event-dot">${e.type==='TRABAJO'?'✓':e.type==='CREADA'?'✦':'•'}</div><div class="event-content"><div class="event-desc">${esc(e.description)}</div><div class="event-extra">${esc(e.type)} · ${esc(e.actor)} · ${time(e.when)}</div></div></div>`).join('')||'<p class="empty">No hay registros para este lote.</p>'}</div></div></section></div>`:`<section class="panel empty">No hay lotes todavía.</section>`}`;}return `${header('Producción por área','Registra las unidades procesadas en cada estación. El avance traslada las unidades a la siguiente etapa y acumula el pago por destajo.') }<div class="stage-tabs">${tabs}</div><div class="lot-grid">${db.lots.filter(l=>l.stocks[stageView].pending>0||l.stocks.finished>0).map(l=>{const b=l.stocks[stageView],o=getOrder(l.orderId);let assign=(o.assignments||[]).find(a=>a.area===stageView)||PLANT_CATALOG.find(a=>a.area===stageView);return `<section class="lot-card"><div class="lot-card-top"><div><div class="eyebrow mono">${esc(l.code)} · ${esc(o.code)}</div><div class="lot-name">${esc(o.reference)}</div><div class="lot-meta">${esc(o.design)} · Talla ${esc(l.size)}</div></div>${tag(b.pending>0?'En estación':'Completado en '+LABELS[stageView],b.pending>0?'teal':'gray')}</div><div class="lot-metrics"><div class="lot-measure"><b>${fmt(l.planned)}</b><span>Meta total</span></div><div class="lot-measure"><b>${fmt(b.pending)}</b><span>Pendientes en ${LABELS[stageView]}</span></div><div class="lot-measure"><b>${fmt(l.stocks.finished)}</b><span>Terminadas</span></div></div>${assign?`<div style="font-size:11px;color:#18534c;background:#e9f6f3;padding:6px 9px;border-radius:7px;margin:10px 0 6px;display:flex;justify-content:space-between;align-items:center"><span>👤 <b>${esc(assign.worker)}</b> · ${esc(assign.task)}</span><span><b>$ ${fmt(assign.cost)}</b> / ud</span></div>`:''}<div class="actions"><button class="btn sm" data-action="process" data-id="${esc(l.id)}" data-stage="${stageView}" ${b.pending>0?'':'disabled'}>${icon('check')} Registrar trabajo</button><button class="btn secondary sm" data-action="trace-lot" data-id="${esc(l.id)}">${icon('trace')} Trazabilidad</button></div></section>`;}).join('')||`<section class="panel empty" style="grid-column:1/-1">${icon('box')}<strong>No hay unidades pendientes en ${LABELS[stageView]}.</strong>Completa trabajo en la etapa anterior o crea una nueva orden para iniciar producción.</section>`}</div><div class="note">Cada vez que se registra trabajo en una etapa, las prendas completadas pasan directamente a la siguiente estación (o a Producto Terminado en Empaque) y se liquidan automáticamente a nombre del operario en la <b>Liquidación semanal</b>.</div>`;}
+function renderPayroll(){const range=getWeekRange(weekOffset),data=getPayItemsForWeek(range),totalUnits=data.items.reduce((s,i)=>s+i.qty,0),totalLots=new Set(data.items.map(i=>i.lotId)).size,areaTotals={};for(const it of data.items){if(!areaTotals[it.stage])areaTotals[it.stage]={name:it.areaName,total:0,units:0};areaTotals[it.stage].total+=it.total;areaTotals[it.stage].units+=it.qty;}const actions=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><div style="display:flex;gap:4px"><button class="btn secondary sm" data-action="prev-week" title="Semana anterior">← Ant.</button><button class="btn secondary sm" data-action="current-week" ${weekOffset===0?'disabled':''}>Actual</button><button class="btn secondary sm" data-action="next-week" title="Semana siguiente" ${weekOffset>=0?'disabled':''}>Sig. →</button></div>${data.isClosed?`<button class="btn danger sm" data-action="reopen-week" data-week="${esc(range.weekKey)}" ${hasAdmin()?'':'disabled'}>Reabrir semana</button>`:`<button class="btn sm" data-action="close-week" data-week="${esc(range.weekKey)}" ${isManager()&&data.items.length?'':'disabled'}>${icon('check')} Cerrar semana</button>`}<button class="btn secondary sm" data-action="print-payroll">${icon('download')} Imprimir</button><button class="btn secondary sm" data-action="export-payroll">${icon('download')} CSV</button></div>`;return `${header('Liquidación semanal por destajo',`Ventana de pago: <b>${esc(range.label)}</b> (${esc(range.weekKey)})`,actions)}${data.isClosed?`<div class="banner" style="background:#eaf2fb;border-color:#c8dbf4;color:#274f82">${icon('info')}<span><strong>Semana cerrada y congelada.</strong> Cerrada por <b>${esc(data.settlement.closedBy)}</b> el ${time(data.settlement.closedAt)}. Los montos se encuentran protegidos ante cambios de tarifas posteriores.</span></div>`:''}<div class="kpis">${kpi('Total a liquidar','$ '+fmt(data.total),`${data.people.length} personas con pago`,'wallet')}${kpi('Prendas liquidadas',totalUnits,'Unidades procesadas','layers')}${kpi('Lotes involucrados',totalLots,'Lotes con avance','scissors')}${kpi('Estado de semana',data.isClosed?'Cerrada':'Abierta',data.isClosed?'Liquidación congelada':'Acumulación en vivo','check')}</div><section class="panel" style="margin-bottom:18px"><div class="panel-head"><div><div class="panel-title">Mano de obra por área de planta</div><div class="panel-sub">Destajo generado en la semana lun–dom</div></div></div><div class="panel-body"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">${STAGES.map(s=>{const at=areaTotals[s]||{name:LABELS[s],total:0,units:0};return `<div style="background:#f8fafc;border:1px solid #e7ebf0;border-radius:10px;padding:12px"><div style="font-size:11px;font-weight:750;color:#64748b;text-transform:uppercase">${esc(at.name)}</div><div style="font-size:20px;font-weight:850;color:#0e7c72;margin:4px 0 2px">$ ${fmt(at.total)}</div><div class="tiny-muted">${fmt(at.units)} unidades producidas</div></div>`;}).join('')}</div></div></section><div style="display:flex;flex-direction:column;gap:18px">${data.people.map(p=>`<section class="panel"><div class="panel-head" style="background:#fafbfc;border-bottom:1px solid var(--border)"><div style="display:flex;align-items:center;gap:12px"><div class="avatar" style="background:#0b8a8d;color:#fff;font-weight:850">${esc(p.name.charAt(0).toUpperCase())}</div><div><div class="panel-title" style="font-size:16px">${esc(p.name)}</div><div class="panel-sub">${fmt(p.units)} prendas liquidadas · ${p.items.length} tareas</div></div></div><div style="text-align:right"><span class="tiny-muted" style="text-transform:uppercase;font-size:10px;font-weight:800;display:block">Total a pagar</span><span style="font-size:22px;font-weight:850;color:#07625a;letter-spacing:-.03em">$ ${fmt(p.total)}</span></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Lote / Talla</th><th>OP / Referencia / Diseño</th><th>Área / Tarea</th><th>Unidades</th><th>Tarifa aplicada</th><th>Total</th><th>Fecha</th></tr></thead><tbody>${p.items.map(it=>`<tr><td class="maincol mono">${esc(it.lotCode)}<div class="subcol">Talla ${esc(it.size)}</div></td><td><b>${esc(it.orderCode)}</b><div class="subcol">${esc(it.reference)} · ${esc(it.design)}</div></td><td><span class="tag teal">${esc(it.areaName)}</span><div class="subcol">${esc(it.task)}</div></td><td class="mono"><strong>${fmt(it.qty)}</strong></td><td class="mono">$ ${fmt(it.unitRate)}${it.isTeam?`<div class="subcol" style="color:#007567">Reparto 1/${it.teamCount} de $ ${fmt(it.fullRate)}</div>`:''}</td><td class="mono" style="font-weight:800;color:#07625a">$ ${fmt(it.total)}</td><td class="subcol">${time(it.when)}</td></tr>`).join('')}</tbody></table></div></section>`).join('')||`<section class="panel empty">${icon('box')}<strong>Sin pagos acumulados en esta semana.</strong>Registra trabajo en Producción para liquidar destajo a los operarios asignados.</section>`}</div>`;}
+function traceTable(l){const s=l.stocks;return `<div class="detail-grid"><div class="lot-measure"><b>${fmt(l.planned)}</b><span>Planificadas</span></div><div class="lot-measure"><b>${fmt(s.finished)}</b><span>Terminadas</span></div><div class="lot-measure"><b>${fmt(s.transit)}</b><span>En tránsito</span></div><div class="lot-measure"><b>${fmt(s.held+s.incidents)}</b><span>Novedades</span></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Ubicación</th><th>Pendiente</th><th>Lista</th><th>Total</th></tr></thead><tbody>${STAGES.map(a=>`<tr><td class="maincol">${LABELS[a]}</td><td>${fmt(s[a].pending)}</td><td>${fmt(s[a].ready)}</td><td><b>${fmt(s[a].pending+s[a].ready)}</b></td></tr>`).join('')}${[['En tránsito',s.transit],['Retenidas',s.held],['Diferencias por conciliar',s.incidents],['Producto terminado',s.finished],['Merma definitiva',s.scrap]].map(([k,v])=>`<tr><td class="maincol">${k}</td><td>—</td><td>—</td><td><b>${fmt(v)}</b></td></tr>`).join('')}</tbody></table></div><div class="audit-balance ${sumStock(l)!==l.planned?'error':''}"><span><b>Control de conciliación</b><br><small>${fmt(sumStock(l))} unidades localizadas o clasificadas / ${fmt(l.planned)} planificadas</small></span>${tag(sumStock(l)===l.planned?'Sin descuadre':'Descuadre',''+(sumStock(l)===l.planned?'green':'red'))}</div>`;}
+function renderTrace(){view='work';stageView='trazabilidad';return renderWork();}
+function renderAdmin(){return `${header('Administración y datos','Gestiona usuarios simulados, copias de seguridad y limpieza del entorno de demostración.') }<div class="admin-grid"><section class="panel"><div class="panel-head"><div><div class="panel-title">Usuarios del entorno</div><div class="panel-sub">Roles de prueba para visualizar permisos</div></div><button class="btn sm" data-action="add-user" ${hasAdmin()?'':'disabled'}>${icon('plus')} Nuevo</button></div><div class="panel-body">${db.users.map(u=>`<div class="compact-row"><div><div class="compact-row-name"><span class="role-dot"></span>${esc(u.name)}</div><div class="compact-row-desc">${esc(roleText(u.role))}</div></div>${u.id===db.currentUser?tag('Activo','teal'):''}</div>`).join('')}</div></section><section class="panel settings-box"><h3>Respaldo y restauración</h3><p>Guarda las órdenes y todos los movimientos en un archivo JSON para restaurarlos en este prototipo.</p><div class="actions"><button class="btn" data-action="export-json">${icon('download')} Descargar respaldo</button><button class="btn secondary" data-action="import-json" ${hasAdmin()?'':'disabled'}>Importar respaldo</button></div><input id="backup-file" type="file" accept="application/json,.json" style="display:none"/><div class="note">Una copia exportada contiene también los nombres y registros de los usuarios de prueba. Guárdala en un lugar seguro.</div><hr style="border:0;border-top:1px solid #e7e9ec;margin:20px 0"><h3>Restablecer prototipo</h3><p>Reinicia los datos de demostración o crea un entorno vacío para registrar tus propias órdenes.</p><div class="actions"><button class="btn secondary" data-action="reset-demo" ${hasAdmin()?'':'disabled'}>Recargar demostración</button><button class="btn danger" data-action="reset-empty" ${hasAdmin()?'':'disabled'}>Vaciar registros</button></div></section></div><section class="panel" style="margin-top:16px"><div class="panel-head"><div><div class="panel-title">Catálogo de Planta y Tarifas Demo (Destajo Pimienta)</div><div class="panel-sub">5 sectores fijos · 5 tareas con tarifa unitaria ($ 13.100 COP / prenda)</div></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Área</th><th>Tarea con tarifa</th><th>Costo unitario</th><th>Personas demo asignables</th></tr></thead><tbody>${PLANT_CATALOG.map(t=>`<tr><td class="maincol">${esc(t.areaName)}</td><td>${esc(t.task)}</td><td class="mono"><strong>$ ${fmt(t.cost)}</strong></td><td>${t.workers.map(w=>`<span class="tag gray" style="margin-right:4px">👤 ${esc(w)}</span>`).join('')}</td></tr>`).join('')}</tbody></table></div></section><div class="panel" style="margin-top:16px;padding:19px 20px"><div class="panel-title">Alcance real de esta versión HTML</div><p class="muted" style="margin-bottom:0">Esta versión funciona sin instalación, incluso sin internet. <b>No contiene servidor, usuarios autenticados, base de datos compartida, inventario de telas, liquidación contable de nómina ni acceso simultáneo entre dispositivos.</b> Los costos de mano de obra se congelan por orden para control y seguimiento de destajo por lote. El selector de usuarios es una simulación visual de permisos: no debe utilizarse como mecanismo de seguridad en producción.</p></div>`;}
+function formField(label,name,value='',type='text',extra=''){return `<div class="field"><label class="label" for="f-${name}">${esc(label)}</label><input id="f-${name}" name="${esc(name)}" type="${type}" value="${esc(value)}" ${extra} /></div>`;}
+function modalState(){const m=modal;if(!m)return null;switch(m.kind){case 'new-order':return {title:'Nueva orden de producción',sub:'Curva de tallas, lotes automáticos y asignación de tareas con congelamiento de costos de mano de obra.',button:'Crear orden y congelar costos',body:`<div class="form-grid">${formField('Referencia / tipo de prenda','reference','','text','required placeholder="Ej. PIJAMA SHORT NIÑO"')}${formField('Diseño','design','','text','required placeholder="Ej. RAPUNZEL"')}${formField('Cliente / destino','customer','Producción para inventario','text')}${formField('Fecha objetivo','due','','date')}</div><fieldset class="form-section"><legend>Distribución por tallas (Curva de producción)</legend><div id="size-rows">${['S','M','L','XL'].map(s=>`<div class="size-row"><input name="size" value="${s}" aria-label="Talla" required /><input name="qty" type="number" min="0" step="1" value="0" class="order-qty-input" aria-label="Cantidad" required/><button class="btn secondary sm" type="button" data-action="remove-size" title="Eliminar talla">×</button></div>`).join('')}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><button class="btn secondary sm" type="button" data-action="add-size">${icon('plus')} Agregar talla</button><span class="tiny-muted">Total prendas curva: <strong id="order-summary-units" style="color:var(--ink);font-size:13px">0 uds</strong></span></div><div class="hint">Puedes usar tallas infantiles (6, 8, 10). Las filas con cantidad 0 se omitirán automáticamente.</div></fieldset><fieldset class="form-section" style="margin-top:16px"><legend>Asignación de Planta · Tareas y Mano de obra (Destajo)</legend><div class="hint" style="margin-bottom:10px">Marca las tareas que aplican a esta prenda y asigna la persona responsable. Al crear la orden, el costo unitario y total quedarán congelados.</div><div class="compact-list" id="tasks-assignment-list">${PLANT_CATALOG.map((t,idx)=>`<div class="compact-row" style="padding:8px 0;align-items:center"><div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0"><input type="checkbox" name="task_active" value="${idx}" id="task-chk-${idx}" class="task-active-chk" ${t.defaultActive?'checked':''} style="width:17px;height:17px;cursor:pointer;margin:0" /><label for="task-chk-${idx}" style="cursor:pointer;min-width:0"><div style="font-weight:750;font-size:12.5px">${esc(t.areaName)}</div><div class="subcol">${esc(t.task)}</div></label></div><div style="display:flex;align-items:center;gap:8px"><select name="task_worker_${idx}" class="task-worker-select" style="padding:6px 8px;font-size:12px;border:1px solid #dce4ed;border-radius:7px;background:#fff">${t.workers.map(w=>`<option value="${esc(w)}" ${w===t.worker?'selected':''}>${esc(w)}</option>`).join('')}</select><div style="display:flex;align-items:center;gap:4px"><span class="tiny-muted">$</span><input type="number" name="task_cost_${idx}" class="task-cost-input" value="${t.cost}" min="0" step="100" style="width:85px;padding:6px 7px;font-size:12px;border:1px solid #dce4ed;border-radius:7px;text-align:right" required /></div></div></div>`).join('')}</div><div style="background:#f1f8f7;border:1px solid #cce8e2;border-radius:10px;padding:12px 14px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:12px"><div><div class="tiny-muted" style="text-transform:uppercase;letter-spacing:.05em;font-size:10px;font-weight:800;color:#0e7c72">Mano de obra / prenda</div><div style="font-size:19px;font-weight:850;color:#07625a;letter-spacing:-.03em" id="order-summary-unit-cost">$ 13.100</div></div><div style="text-align:right"><div class="tiny-muted" style="text-transform:uppercase;letter-spacing:.05em;font-size:10px;font-weight:800;color:#0e7c72">Presupuesto total M.O.</div><div style="font-size:19px;font-weight:850;color:#07625a;letter-spacing:-.03em" id="order-summary-total-cost">$ 0</div></div></div></fieldset><div class="field" style="margin-top:14px"><label class="label" for="f-notes">Observaciones de producción</label><textarea name="notes" id="f-notes" rows="2" placeholder="Indicaciones de trazo, telas, insumos o particularidades"></textarea></div>`};
+case 'process':{const l=getLot(m.id),b=l.stocks[m.stage],o=getOrder(l.orderId);const assign=(o?.assignments||[]).find(a=>a.area===m.stage)||PLANT_CATALOG.find(a=>a.area===m.stage);const currentWorker=assign?.worker||current().name;const unitRate=assign?.cost||0;return {title:'Registrar trabajo · '+LABELS[m.stage],sub:l.code+' · '+lotDetail(l),button:'Registrar trabajo y liquidar destajo',body:`<div class="inline-details"><span>Disponibles en estación: <b>${fmt(b.pending)} uds</b></span><span>Terminadas acumuladas: <b>${fmt(l.stocks.finished)} uds</b></span><span>Tarifa asignada: <b>$ ${fmt(unitRate)} / ud</b></span></div><div class="form-grid"><div class="field"><label class="label" for="f-good">Prendas procesadas</label><input id="f-good" name="good" type="number" min="1" max="${b.pending}" step="1" value="${b.pending}" class="process-qty-input" required /></div><div class="field"><label class="label" for="f-actor">Operario responsable</label><input id="f-actor" name="actor" type="text" value="${esc(currentWorker)}" required /></div></div><div style="background:#f1f8f7;border:1px solid #cce8e2;border-radius:10px;padding:12px 14px;margin-top:14px;display:flex;justify-content:space-between;align-items:center"><div><div class="tiny-muted" style="text-transform:uppercase;font-size:10px;font-weight:800;color:#0e7c72">Destajo a liquidar</div><div style="font-size:19px;font-weight:850;color:#07625a" id="process-subtotal">$ ${fmt(b.pending * unitRate)}</div></div><span class="tiny-muted">Tarifa × Unidades procesadas</span></div><div class="note">Al registrar, las unidades avanzan automáticamente a la siguiente etapa (o a Terminado en Empaque) y se suman a la <b>Liquidación semanal</b> del operario sin duplicar movimientos.</div>`};}
+case 'add-user':return {title:'Agregar usuario de prueba',sub:'La selección de rol no equivale a una cuenta autenticada.',button:'Agregar usuario',body:`<div class="form-grid">${formField('Nombre','name','','text','required maxlength="70"')}<div class="field"><label class="label">Rol</label><select name="role">${['admin','supervisor',...STAGES].map(r=>`<option value="${r}">${esc(roleText(r))}</option>`).join('')}</select></div></div><div class="note">Este entorno solo simula permisos. Para uso empresarial se necesita autenticación real y restricciones ejecutadas en el servidor.</div>`};
+default:return null;}}
+function renderModal(){const m=modalState();if(!m)return '';return `<div class="modal-overlay" id="modal-overlay"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-head"><div><h2 id="modal-title">${esc(m.title)}</h2><p>${esc(m.sub)}</p></div><button type="button" class="icon-close" data-action="close-modal" aria-label="Cerrar">×</button></div><form id="action-form"><div class="modal-content">${m.body}<div class="modal-foot"><button class="btn secondary" type="button" data-action="close-modal">Cancelar</button><button class="btn" type="submit">${icon('check')} ${esc(m.button)}</button></div></div></form></div></div>`;}
+
+function attachLoginEvents(){
+  const showBtn = document.getElementById('show-password');
+  if(showBtn){
+    showBtn.addEventListener('click', ()=>{
+      const passInp = document.getElementById('login-password');
+      if(!passInp) return;
+      const reveal = passInp.type === 'password';
+      passInp.type = reveal ? 'text' : 'password';
+      showBtn.setAttribute('aria-label', reveal ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    });
+  }
+  const forgot = document.getElementById('forgot-password');
+  if(forgot){
+    forgot.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const msg = document.getElementById('login-message');
+      if(msg){
+        msg.style.color = '#E05A47';
+        msg.textContent = 'En este prototipo local puedes iniciar sesión con cualquier correo y clave (mín. 6 letras).';
+      }
+    });
+  }
+  const form = document.getElementById('login-form');
+  if(form){
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const email = document.getElementById('login-email');
+      const pass = document.getElementById('login-password');
+      const msg = document.getElementById('login-message');
+      if(!email || !email.value.trim()){
+        if(msg){ msg.style.color = '#DC2626'; msg.textContent = 'Escribe tu correo electrónico.'; }
+        email?.focus();
+        return;
+      }
+      if(!pass || pass.value.length < 6){
+        if(msg){ msg.style.color = '#DC2626'; msg.textContent = 'Introduce una clave de al menos 6 caracteres.'; }
+        pass?.focus();
+        return;
+      }
+      const remember = document.getElementById('remember-email');
+      if(remember && remember.checked){
+        try{ localStorage.setItem('trama_demo_email', email.value.trim()); }catch{}
+      } else {
+        try{ localStorage.removeItem('trama_demo_email'); }catch{}
+      }
+      loggedIn = true;
+      try{ sessionStorage.setItem('trama_logged_in', 'true'); }catch{}
+      render();
+      notify('¡Bienvenido a TRAMA! Sesión iniciada.');
+    });
+  }
+  // Visual pointer tilt on orbit in login
+  const visual = document.getElementById('visual'), orbit = document.getElementById('orbit');
+  if(visual && orbit && window.matchMedia && window.matchMedia('(hover:hover) and (pointer:fine)').matches){
+    visual.addEventListener('pointermove', e => {
+      const r = visual.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      orbit.style.transform = `perspective(700px) rotateY(${x * 6}deg) rotateX(${2 - y * 5}deg) translate(${x * 5}px,${y * 5}px)`;
+    });
+    visual.addEventListener('pointerleave', () => {
+      orbit.style.transform = 'perspective(700px) rotateX(2deg)';
+    });
+  }
+}
+
+function updateTrack(){
+  const nav = document.getElementById('sidebar-nav');
+  const track = document.getElementById('nav-track');
+  if(!nav || !track) return;
+  const active = nav.querySelector('.nav-item.active');
+  if(!active){ track.style.opacity = '0'; return; }
+  track.style.transform = `translateY(${active.offsetTop}px)`;
+  track.style.height = active.offsetHeight + 'px';
+  track.style.opacity = '1';
+}
+
+function attachEnhanceEffects(){
+  // 1. Add floating atmospheric orbs if not yet in DOM
+  if(!document.querySelector('.fx-atmosphere')){
+    const atmosphere = document.createElement('div');
+    atmosphere.className = 'fx-atmosphere';
+    atmosphere.setAttribute('aria-hidden', 'true');
+    for (const name of ['one', 'two', 'three', 'four']) {
+      const orb = document.createElement('i');
+      orb.className = 'fx-orb ' + name;
+      atmosphere.appendChild(orb);
+    }
+    document.body.appendChild(atmosphere);
+  }
+
+  // 2. Attach tilt classes to cards and panels
+  const selector = '.kpi, .panel, .lot-card, .compact-row, .modal, .audit-balance';
+  document.querySelectorAll(selector).forEach(el => {
+    if(el.dataset.fxReady) return;
+    el.dataset.fxReady = '1';
+    el.classList.add('fx-tilt');
+  });
+
+  // 3. Update nav track position
+  requestAnimationFrame(updateTrack);
+
+  // 4. Attach sidebar toggle button listener
+  const toggleBtn = document.getElementById('sidebar-toggle');
+  const sidebar = document.getElementById('sidebar');
+  if(toggleBtn && sidebar && !toggleBtn.dataset.bound){
+    toggleBtn.dataset.bound = '1';
+    toggleBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      sidebar.classList.toggle('collapsed');
+      const isCollapsed = sidebar.classList.contains('collapsed');
+      toggleBtn.setAttribute('aria-label', isCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral');
+      requestAnimationFrame(updateTrack);
+    });
+  }
+}
+
+function render(){
+  const appEl = document.getElementById('app');
+  if(!loggedIn){
+    document.body.classList.remove('dashboard-active');
+    appEl.innerHTML = renderLogin();
+    attachLoginEvents();
+  } else {
+    document.body.classList.add('dashboard-active');
+    appEl.innerHTML = renderShell();
+    attachEnhanceEffects();
+  }
+}
+function updateNewOrderSummary(){const form=document.getElementById('action-form');if(!form)return;if(modal&&modal.kind==='new-order'){const qtyInputs=[...form.querySelectorAll('.order-qty-input')];const totalUnits=qtyInputs.reduce((s,inp)=>s+(Number(inp.value)||0),0);const unitsEl=document.getElementById('order-summary-units');if(unitsEl)unitsEl.textContent=fmt(totalUnits)+' uds';const activeChks=[...form.querySelectorAll('.task-active-chk:checked')];let unitCost=0;for(const chk of activeChks){const idx=chk.value;const costInp=form.querySelector(`[name="task_cost_${idx}"]`);unitCost+=Number(costInp?.value||0);}const unitEl=document.getElementById('order-summary-unit-cost');if(unitEl)unitEl.textContent='$ '+fmt(unitCost);const totalCost=unitCost*totalUnits;const totalEl=document.getElementById('order-summary-total-cost');if(totalEl)totalEl.textContent='$ '+fmt(totalCost);}if(modal&&modal.kind==='process'){const good=Number(form.querySelector('[name="good"]')?.value||0);const l=getLot(modal.id),o=getOrder(l.orderId);const assign=(o?.assignments||[]).find(a=>a.area===modal.stage)||PLANT_CATALOG.find(a=>a.area===modal.stage);const rate=assign?.cost||0;const subEl=document.getElementById('process-subtotal');if(subEl)subEl.textContent='$ '+fmt(good*rate);}}
+function open(kind,id='',stage=''){modal={kind,id,stage};render();setTimeout(()=>{document.querySelector('.modal input:not([type="hidden"]),.modal textarea,.modal select')?.focus();if(kind==='new-order')updateNewOrderSummary();},0);}
+function handleSubmit(form){if(!modal)return;const m=modal,fd=new FormData(form);const get=(k)=>String(fd.get(k)||'');try{if(m.kind==='new-order'){requireRight(isManager());const sizes=[...form.querySelectorAll('[name="size"]')].map(e=>e.value),qs=[...form.querySelectorAll('[name="qty"]')].map(e=>e.value);const lines=sizes.map((size,i)=>({size,qty:qs[i]})).filter(l=>l.qty!==''&&Number(l.qty)>0);const activeChks=[...form.querySelectorAll('.task-active-chk:checked')];const assignments=activeChks.map(chk=>{const idx=Number(chk.value),cat=PLANT_CATALOG[idx];const worker=form.querySelector(`[name="task_worker_${idx}"]`)?.value||cat.worker;const cost=Number(form.querySelector(`[name="task_cost_${idx}"]`)?.value||cat.cost);return {area:cat.area,areaName:cat.areaName,task:cat.task,cost,worker,workers:[worker]};});view='orders';transact(()=>createOrder({reference:get('reference'),design:get('design'),customer:get('customer'),due:get('due'),notes:get('notes'),lines,assignments}));return;}if(m.kind==='process'){requireRight(authorized(m.stage));transact(()=>processLot(m.id,m.stage,get('good'),get('actor')));return;}if(m.kind==='add-user'){requireRight(hasAdmin());transact(()=>{const name=get('name').trim(),role=get('role');if(!name||name.length>70||!['admin','supervisor',...STAGES].includes(role))throw Error('Completa nombre y rol.');db.users.push({id:id('USR'),name,role});});return;}}catch(err){notify(err.message,true)}}
+function download(name,data,type='application/json'){const blob=new Blob([data],{type:type+';charset=utf-8'}),url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);}
+function csvSafe(v){const text=String(v??'');const guarded=/^[=+\-@\t\r]/.test(text)?"'"+text:text;return '"'+guarded.replace(/"/g,'""')+'"';}
+function exportCSV(){const rows=[['Orden','Lote','Referencia','Diseño','Talla','Planificadas','Corte pendientes','Corte listas','Confeccion pendientes','Confeccion listas','Acabados pendientes','Acabados listas','Empaque pendientes','Empaque listas','Transito','Retenidas','Incidencias','Terminadas','Merma','Saldo conciliado']];for(const l of db.lots){const o=getOrder(l.orderId),s=l.stocks;rows.push([o.code,l.code,o.reference,o.design,l.size,l.planned,s.corte.pending,s.corte.ready,s.confeccion.pending,s.confeccion.ready,s.acabados.pending,s.acabados.ready,s.empaque.pending,s.empaque.ready,s.transit,s.held,s.incidents,s.finished,s.scrap,sumStock(l)]);}download('TRAMA_Saldos_Lotes.csv','\ufeff'+rows.map(r=>r.map(csvSafe).join(';')).join('\r\n'),'text/csv');}
+function validateBackup(raw){const x=JSON.parse(raw);if(!x||x.version!==1||!x.seq||!Array.isArray(x.users)||!x.users.length||!Array.isArray(x.orders)||!Array.isArray(x.lots)||!Array.isArray(x.transfers)||!Array.isArray(x.holds)||!Array.isArray(x.incidents)||!Array.isArray(x.events))throw Error('Respaldo incompatible o incompleto.');if(x.lots.length>100000||x.events.length>500000)throw Error('Archivo demasiado grande para este prototipo.');const lotSet=new Set(x.lots.map(l=>l.id));const ordSet=new Set(x.orders.map(o=>o.id));if(x.lots.some(l=>!ordSet.has(l.orderId))||x.transfers.some(t=>!lotSet.has(t.lotId))||x.holds.some(h=>!lotSet.has(h.lotId))||x.incidents.some(i=>!lotSet.has(i.lotId))||x.events.some(e=>!lotSet.has(e.lotId)))throw Error('Hay referencias internas inválidas.');verifyAll(x);return x;}
+async function importBackup(file){if(!file)return;if(file.size>20*1024*1024){notify('El respaldo supera los 20 MB permitidos.',true);return}try{const d=validateBackup(await file.text());if(!confirm('¿Reemplazar todos los datos actuales con este respaldo? Descarga una copia de seguridad primero.'))return;db=d;if(!db.users.some(u=>u.id===db.currentUser))db.currentUser=db.users[0].id;orderChoice='';lotChoice='';modal=null;view='dashboard';save();render();notify('Respaldo restaurado.')}catch(err){notify('Importación rechazada: '+err.message,true)}}
+document.addEventListener('click',e=>{if(e.target.id==='modal-overlay'){modal=null;render();return}const button=e.target.closest('[data-action],[data-nav],[data-stage]');if(!button||button.disabled)return;const action=button.dataset.action;try{if(action==='logout'){ loggedIn=false; try{ sessionStorage.removeItem('trama_logged_in'); }catch{} render(); notify('Sesión cerrada correctamente.'); return; }
+if(button.dataset.nav){view=button.dataset.nav;modal=null;render();window.scrollTo({top:0,behavior:'instant'});return}if(button.dataset.stage){stageView=button.dataset.stage;render();return}if(action==='close-modal'){modal=null;render();return}if(action==='new-order'){requireRight(isManager());open('new-order');return}if(action==='order-detail'){orderChoice=button.dataset.id;render();document.querySelector('.content > section:last-child')?.scrollIntoView({behavior:'smooth',block:'nearest'});return}if(action==='close-order-detail'){orderChoice='';render();return}if(action==='process'){requireRight(authorized(button.dataset.stage));open('process',button.dataset.id,button.dataset.stage);return}if(action==='trace-lot'){lotChoice=button.dataset.id;view='work';stageView='trazabilidad';render();window.scrollTo({top:0,behavior:'instant'});return}if(action==='goto-trace'){view='work';stageView='trazabilidad';render();window.scrollTo({top:0,behavior:'instant'});return}if(action==='prev-week'){weekOffset--;render();return}if(action==='next-week'){if(weekOffset<0){weekOffset++;render();}return}if(action==='current-week'){weekOffset=0;render();return}if(action==='close-week'){transact(()=>closeWeek(button.dataset.week));return}if(action==='reopen-week'){transact(()=>reopenWeek(button.dataset.week));return}if(action==='print-payroll'){window.print();return}if(action==='export-payroll'){const range=getWeekRange(weekOffset),data=getPayItemsForWeek(range);exportPayrollCSV(range,data);return}if(action==='add-user'){requireRight(hasAdmin());open('add-user');return}if(action==='add-size'){let box=document.getElementById('size-rows');const row=document.createElement('div');row.className='size-row';row.innerHTML='<input name="size" placeholder="Talla" aria-label="Talla" required/><input type="number" name="qty" min="0" step="1" value="0" class="order-qty-input" aria-label="Cantidad" required/><button class="btn secondary sm" type="button" data-action="remove-size" title="Eliminar talla">×</button>';box.appendChild(row);row.querySelector('input').focus();updateNewOrderSummary();return}if(action==='remove-size'){const items=document.querySelectorAll('#size-rows .size-row');if(items.length===1){notify('Debe quedar al menos una fila de talla.',true);return}button.closest('.size-row')?.remove();updateNewOrderSummary();return}if(action==='export-json'){download('TRAMA_Respaldo_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(db,null,2));notify('Respaldo descargado.');return}if(action==='import-json'){requireRight(hasAdmin());document.getElementById('backup-file').click();return}if(action==='export-csv'){exportCSV();return}if(action==='reset-demo'){requireRight(hasAdmin());if(confirm('¿Restablecer la demostración? Se perderán los cambios que no hayas exportado.')){createDemo();save();render();notify('Demostración restablecida.');}return}if(action==='reset-empty'){requireRight(hasAdmin());if(confirm('¿Vaciar TODAS las órdenes y registros de producción? Se perderán los cambios no respaldados.')){db=defaultDB();db.demo=false;save();view='dashboard';lotChoice='';orderChoice='';render();notify('Entorno limpio creado.');}return}}catch(err){notify(err.message,true)}});
+document.addEventListener('input',e=>{if(e.target.closest('#modal-overlay'))updateNewOrderSummary();});
+document.addEventListener('change',e=>{if(e.target.closest('#modal-overlay'))updateNewOrderSummary();if(e.target.id==='active-user'){db.currentUser=e.target.value;save();render();notify('Usuario de prueba: '+current().name)}if(e.target.id==='lot-choice'){lotChoice=e.target.value;render()}if(e.target.id==='backup-file')importBackup(e.target.files?.[0]);});
+document.addEventListener('submit',e=>{if(e.target.id==='action-form'){e.preventDefault();handleSubmit(e.target)}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal){modal=null;render()}});
+
+// 3D Pointer Tilt Engine
+document.addEventListener('pointermove', e => {
+  if(!loggedIn) return;
+  const el = e.target.closest('.fx-tilt');
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  const x = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+  const y = Math.max(0, Math.min(1, (e.clientY - r.top) / r.height));
+  el.style.setProperty('--fx-px', (x * 100) + '%');
+  el.style.setProperty('--fx-py', (y * 100) + '%');
+  el.style.setProperty('--fx-ry', ((x - 0.5) * 8).toFixed(2) + 'deg');
+  el.style.setProperty('--fx-rx', ((0.5 - y) * 6).toFixed(2) + 'deg');
+}, { passive: true });
+
+document.addEventListener('pointerout', e => {
+  const el = e.target.closest('.fx-tilt');
+  if (el && (!e.relatedTarget || !el.contains(e.relatedTarget))) {
+    el.style.setProperty('--fx-rx', '0deg');
+    el.style.setProperty('--fx-ry', '0deg');
+    el.style.setProperty('--fx-px', '50%');
+    el.style.setProperty('--fx-py', '50%');
+  }
+}, { passive: true });
+
+// Fluid Ripple Effect Engine
+document.addEventListener('click', e => {
+  const b = e.target.closest('.btn, .submit-btn, .nav-item, .stage-tab, .sidebar-logout, .sidebar-collapse-toggle');
+  if (!b) return;
+  const r = b.getBoundingClientRect();
+  if (!r.width) return;
+  const ripple = document.createElement('span');
+  ripple.className = 'fx-ripple';
+  ripple.style.setProperty('--x', (e.clientX - r.left) + 'px');
+  ripple.style.setProperty('--y', (e.clientY - r.top) + 'px');
+  b.appendChild(ripple);
+  ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+  setTimeout(() => ripple.remove(), 700);
+  if (b.closest('.nav')) requestAnimationFrame(updateTrack);
+}, true);
+
+// Ctrl+B shortcut for sidebar collapse
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+    e.preventDefault();
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+      sidebar.classList.toggle('collapsed');
+      requestAnimationFrame(updateTrack);
+    }
+  }
+});
+
+init();
+</script>
+</body>
+</html>
