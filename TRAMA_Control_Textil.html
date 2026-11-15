@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0e1931" />
 <title>TRAMA · Control de producción textil — MVP</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -64,7 +64,10 @@ html {
   height: 100%;
   scroll-behavior: smooth;
   width: 100%;
+  max-width: 100%;
   overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -101,6 +104,18 @@ body::before {
 @keyframes fxSkyWarm {
   0% { background-position: 0% 0%; }
   100% { background-position: 100% 80%; }
+}
+
+.screen-reader {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ==========================================================================
@@ -642,12 +657,20 @@ body.dashboard-active {
 }
 *::-webkit-scrollbar-corner { background: transparent; }
 
+#app {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
 .app {
   min-height: 100dvh;
   display: flex;
   position: relative;
   width: 100%;
   max-width: 100%;
+  min-width: 0;
   gap: 8px;
   padding: 10px 10px 10px 8px;
   box-sizing: border-box;
@@ -1143,6 +1166,8 @@ body.dashboard-active {
   color: var(--muted);
   font-size: 13px;
   font-weight: 500;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .breadcrumb b {
@@ -1155,6 +1180,8 @@ body.dashboard-active {
   display: flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+  flex: 0 1 auto;
 }
 
 .avatar {
@@ -1820,12 +1847,20 @@ body.dashboard-active {
 .modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
 
 /* ────────── CAMPOS Y FORMULARIOS DENTRO DEL PANEL ────────── */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+}
 .field { display: flex; flex-direction: column; min-width: 0; }
 .label { font-size: 12px; color: #4b5563; font-weight: 700; display: block; margin-bottom: 6px; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .form-grid .span2 { grid-column: 1 / -1; }
 
-.field input, .field select, .field textarea, .filters input, .filters select {
+.field input, .field select, .field textarea, .filters input:not([type="checkbox"]):not([type="radio"]), .filters select {
   width: 100%;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(215, 205, 195, 0.75);
@@ -1903,10 +1938,10 @@ body.dashboard-active {
 .pay-accordion { overflow: hidden; }
 .pay-accordion > summary.pay-summary {
   list-style: none;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 10px;
   padding: 14px 16px;
   background: #fafbfc;
   border-bottom: 1px solid transparent;
@@ -1914,14 +1949,16 @@ body.dashboard-active {
   user-select: none;
   transition: background 0.2s ease, border-color 0.2s ease;
 }
-.pay-accordion > summary.pay-summary::-webkit-details-marker { display: none; }
+.pay-accordion > summary.pay-summary::-webkit-details-marker,
+.pay-accordion > summary.pay-summary::marker { display: none; content: ""; }
 .pay-accordion[open] > summary.pay-summary {
   border-bottom-color: var(--border, #e7ebf0);
 }
 .pay-accordion > summary.pay-summary:hover { background: #f3f6f8; }
-.pay-summary-main { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 180px; }
+.pay-summary-main { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .pay-summary-text { min-width: 0; }
-.pay-summary-total { text-align: right; margin-left: auto; }
+.pay-summary-text .panel-sub { overflow-wrap: anywhere; }
+.pay-summary-total { text-align: right; white-space: nowrap; }
 .pay-chev {
   width: 28px;
   height: 28px;
@@ -2150,6 +2187,83 @@ body.dashboard-active {
   box-shadow: 0 6px 16px rgba(224, 90, 71, 0.38);
 }
 
+/* ────────── TABLERO DEL DÍA ────────── */
+.board { display: flex; flex-direction: column; gap: 16px; max-width: 920px; }
+.board-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.board-kicker { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #71717a; margin-bottom: 4px; }
+.board h1 { margin: 0; font: 800 28px/1.15 var(--font-sans); letter-spacing: -0.04em; color: #18181b; }
+.board-sentence { margin: 8px 0 0; font-size: 18px; font-weight: 650; color: #27272a; line-height: 1.35; }
+.mix { background: #fff; border: 1px solid #e7e5e4; border-radius: 16px; padding: 14px 16px; }
+.mix-bar { display: flex; height: 12px; border-radius: 999px; overflow: hidden; background: #f4f4f5; }
+.mix-bar span { display: block; height: 100%; min-width: 0; }
+.mix-bar .todo { background: #a1a1aa; }
+.mix-bar .live { background: #d97706; }
+.mix-bar .done { background: #059669; }
+.mix-bar .scrap { background: #e11d48; }
+.mix-legend { display: flex; flex-wrap: wrap; gap: 14px 18px; margin-top: 10px; font-size: 13px; color: #3f3f46; }
+.mix-legend b { color: #18181b; }
+.swatch { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.swatch.todo { background: #a1a1aa; }
+.swatch.live { background: #d97706; }
+.swatch.done { background: #059669; }
+.mix-note { margin: 8px 0 0; font-size: 12px; color: #71717a; }
+.board-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.day-switch { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.day-chip { border: 1px solid #e7e5e4; background: #fff; color: #3f3f46; border-radius: 999px; min-height: 40px; padding: 0 14px; font: 700 13px var(--font-sans); cursor: pointer; }
+.day-chip.on { background: #18181b; color: #fff; border-color: #18181b; }
+.day-field input, .board-select select { height: 40px; border: 1px solid #e7e5e4; background: #fff; border-radius: 12px; padding: 0 12px; font: 600 14px var(--font-sans); color: #18181b; }
+.board-select select { max-width: 100%; }
+.job-list { display: flex; flex-direction: column; gap: 14px; }
+.job-card { background: #fff; border: 1px solid #e7e5e4; border-radius: 18px; padding: 16px 16px 14px; box-shadow: 0 1px 0 rgba(24,24,27,0.04); }
+.job-top { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.job-client { font-size: 17px; font-weight: 800; letter-spacing: -0.03em; color: #18181b; }
+.job-garment { margin-top: 2px; font-size: 14px; font-weight: 650; color: #3f3f46; }
+.job-code { margin-top: 3px; font-size: 12px; color: #71717a; }
+.job-chip { flex: none; border-radius: 999px; padding: 5px 10px; font-size: 11px; font-weight: 800; letter-spacing: 0.02em; }
+.job-chip.wait { background: #f4f4f5; color: #52525b; }
+.job-chip.live { background: #fffbeb; color: #b45309; }
+.job-chip.done { background: #ecfdf5; color: #047857; }
+.job-chip.late { background: #fff1f2; color: #be123c; }
+.route { list-style: none; display: flex; gap: 0; margin: 16px 0 4px; padding: 0; }
+.route-step { position: relative; flex: 1; min-width: 0; text-align: center; }
+.route-step .dot { width: 26px; height: 26px; border-radius: 50%; margin: 0 auto 6px; display: grid; place-items: center; font-size: 12px; font-weight: 800; border: 2px solid #d4d4d8; background: #fff; color: transparent; position: relative; z-index: 1; }
+.route-step .name { display: block; font-size: 11px; font-weight: 750; color: #52525b; line-height: 1.25; }
+.route-step.wait .name { color: #a1a1aa; }
+.route-step.done .dot { background: #059669; border-color: #059669; color: #fff; }
+.route-step.active .dot { background: #fffbeb; border-color: #d97706; color: #b45309; box-shadow: 0 0 0 4px rgba(217, 119, 6, 0.16); }
+.route-step:not(:last-child)::before { content: ""; position: absolute; top: 12px; left: calc(50% + 16px); right: calc(-50% + 16px); height: 2px; background: #e7e5e4; z-index: 0; }
+.job-units { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 10px; font-size: 12.5px; color: #52525b; }
+.job-units b { color: #18181b; font-size: 14px; }
+.day-log { margin-top: 12px; padding-top: 10px; border-top: 1px solid #f4f4f5; }
+.day-log-title { font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #71717a; margin-bottom: 6px; }
+.day-move { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; font-size: 13px; color: #3f3f46; }
+.day-move time { flex: none; color: #71717a; font-size: 12px; }
+.day-empty { margin: 0; font-size: 13px; color: #71717a; }
+.job-open { margin-top: 12px; }
+.board-filter-block { display: flex; flex-direction: column; gap: 8px; }
+.board-search { flex: 1 1 220px; min-width: 180px; }
+.board-search input { width: 100%; height: 40px; border: 1px solid #e7e5e4; background: #fff; border-radius: 12px; padding: 0 12px; font: 600 14px var(--font-sans); color: #18181b; }
+.size-list, .labor-list { display: flex; flex-direction: column; margin-top: 4px; }
+.size-line, .labor-line { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid #f4f4f5; font-size: 14px; color: #3f3f46; }
+.size-line b, .labor-line b { color: #18181b; }
+.labor-line span { display: block; font-size: 12px; font-weight: 600; color: #71717a; }
+.labor-head { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 4px 0 8px; font-size: 13px; color: #52525b; }
+.labor-head b { color: #18181b; }
+.order-note { margin: 8px 0 0; font-size: 13px; color: #3f3f46; }
+.board-empty { background: #fff; border: 1px dashed #d4d4d8; border-radius: 16px; padding: 22px 16px; text-align: center; }
+.board-empty strong { display: block; color: #18181b; margin-bottom: 4px; }
+.board-empty p { margin: 0; color: #71717a; font-size: 13px; }
+@media (max-width: 720px) {
+  .board h1 { font-size: 24px; }
+  .board-sentence { font-size: 16px; }
+  .board-top .btn { width: 100%; }
+  .board-filters, .day-switch, .board-select, .board-select select, .day-field, .day-field input, .board-search, .board-search input { width: 100%; }
+  .route { flex-direction: column; }
+  .route-step { display: grid; grid-template-columns: 28px 1fr; align-items: center; column-gap: 10px; text-align: left; min-height: 40px; }
+  .route-step .dot { margin: 0; }
+  .route-step:not(:last-child)::before { top: 26px; left: 12px; right: auto; width: 2px; height: calc(100% - 12px); }
+}
+
 /* ────────── RESPONSIVE: escritorio medio (<= 1400px) ────────── */
 @media(max-width: 1400px) {
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -2202,7 +2316,8 @@ body.dashboard-active {
   .sidebar {
     position: fixed;
     inset: 10px auto 10px 10px;
-    width: min(292px, calc(100vw - 28px)) !important;
+    width: min(292px, calc(100% - 28px)) !important;
+    max-width: min(292px, calc(100% - 28px)) !important;
     flex: none !important;
     height: auto;
     max-height: calc(100dvh - 20px);
@@ -2217,7 +2332,8 @@ body.dashboard-active {
     transform: translateX(0);
   }
   .sidebar.collapsed {
-    width: min(292px, calc(100vw - 28px)) !important;
+    width: min(292px, calc(100% - 28px)) !important;
+    max-width: min(292px, calc(100% - 28px)) !important;
     padding: 20px 14px 16px !important;
     border-radius: 36px !important;
     align-items: stretch !important;
@@ -2261,18 +2377,34 @@ body.dashboard-active {
     overflow-y: auto;
   }
   .topbar {
-    height: 68px;
-    padding: 0 18px;
-    gap: 12px;
+    height: auto;
+    min-height: 64px;
+    padding: 10px 14px;
+    gap: 10px;
   }
   .breadcrumb {
     display: flex;
     align-items: center;
     gap: 10px;
     min-width: 0;
+    overflow: hidden;
+  }
+  .breadcrumb b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .user-pick {
+    width: 100%;
+    max-width: 210px;
+    min-width: 0;
   }
   .content {
-    padding: 22px 18px 98px;
+    padding: 22px 16px calc(98px + env(safe-area-inset-bottom));
+  }
+  .pagehead, .pagehead h1, .pagehead p, .banner, .eyebrow, .kpi-note, .panel-sub {
+    overflow-wrap: anywhere;
+    max-width: 100%;
   }
   .lot-grid {
     grid-template-columns: 1fr;
@@ -2294,32 +2426,72 @@ body.dashboard-active {
 /* ────────── RESPONSIVE: CELULARES (<= 640px) ────────── */
 @media(max-width: 640px) {
   body { padding: 0; }
-  .login-view-container { padding: 0; }
+  .login-view-container { padding: 0; align-items: stretch; }
   .login-shell {
     border-radius: 0;
     border: 0;
     min-height: 100dvh;
+    min-height: 100svh;
+    width: 100%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
+    overflow: visible;
   }
   .visual {
-    padding: 22px 20px 20px;
+    padding: 16px 16px 14px;
   }
-  .hero-copy { margin-top: 16px; }
-  .hero-copy h1 { font-size: 24px; }
-  .visual-footer { font-size: 10px; }
+  .hero-copy { margin-top: 12px; }
+  .hero-copy h1 { font-size: 22px; margin: 8px 0 6px; }
+  .hero-copy p {
+    font-size: 12.5px;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .visual-footer { margin-top: 12px; padding-top: 10px; font-size: 10px; gap: 6px; }
   .login-panel {
     flex: 1;
-    padding: 28px 20px 56px;
+    width: 100%;
+    padding: 20px 16px 24px;
+    flex-direction: column;
+    align-items: stretch;
   }
-  .top-tag { right: 18px; top: 18px; font-size: 9px; padding: 5px 10px; }
+  .top-tag { width: 100%; overflow-wrap: anywhere; }
+  .top-tag {
+    position: static;
+    display: block;
+    margin: 0 0 12px;
+    letter-spacing: 0.12em;
+    font-size: 10px;
+  }
   .form-wrap h2 { font-size: 24px; }
-  .login-options { flex-wrap: wrap; gap: 10px; }
-  .demo-pill { bottom: 14px; font-size: 9.5px; padding: 5px 12px; width: max-content; max-width: 92%; }
+  .login-intro { margin-bottom: 16px; }
+  .login-field { margin-bottom: 14px; }
+  .lock-icon { width: 44px; height: 44px; margin-bottom: 12px; }
+  .login-options { flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .demo-pill {
+    position: static;
+    transform: none;
+    width: auto;
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
+    margin: 18px auto 0;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+  .input-shell input, .input-shell select, .field input, .field select, .field textarea, .filters input, .filters select, .user-pick {
+    font-size: 16px;
+  }
 
   .topbar {
-    height: 62px;
-    padding: 0 12px;
+    min-height: 58px;
+    height: auto;
+    padding: 8px 12px;
     gap: 8px;
   }
   .breadcrumb-prefix { display: none; }
@@ -2329,7 +2501,8 @@ body.dashboard-active {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .top-controls { gap: 8px; }
+  .top-controls { gap: 8px; max-width: 54%; }
+  .user-pick { max-width: 118px; height: 36px; padding: 0 22px 0 8px; }
   .avatar {
     width: 34px;
     height: 34px;
@@ -2345,7 +2518,7 @@ body.dashboard-active {
   }
 
   .content {
-    padding: 16px 12px 96px;
+    padding: 16px 12px calc(96px + env(safe-area-inset-bottom));
   }
   .banner {
     padding: 12px 14px;
@@ -2392,7 +2565,7 @@ body.dashboard-active {
     gap: 10px;
   }
   .panel-body { padding: 0 15px 16px; }
-  .data-table { min-width: 520px; }
+  .data-table { min-width: 0; }
   .data-table th, .data-table td {
     padding: 10px 10px;
     font-size: 12px;
@@ -2433,6 +2606,8 @@ body.dashboard-active {
     gap: 8px;
     width: 100%;
   }
+  .lot-card .actions .btn:first-child { grid-column: 1 / -1; }
+  .lot-measure span { overflow-wrap: anywhere; }
 
   .detail-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -2450,10 +2625,15 @@ body.dashboard-active {
     gap: 8px;
   }
   .filters select,
-  .filters input,
+  .filters input:not([type="checkbox"]):not([type="radio"]),
   .filters .btn {
     max-width: 100%;
     width: 100%;
+  }
+  .filters input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex: none;
   }
 
   .settings-box { padding: 18px 15px; }
@@ -2509,11 +2689,59 @@ body.dashboard-active {
   }
 }
 
-/* ────────── RESPONSIVE: CELULARES PEQUEÑOS (<= 390px) ────────── */
-@media(max-width: 390px) {
+/* ────────── RESPONSIVE: CELULARES PEQUEÑOS (<= 360px) ────────── */
+@media(max-width: 360px) {
   .kpis { grid-template-columns: 1fr; }
   .lot-card .actions { grid-template-columns: 1fr; }
-  .user-pick { max-width: 122px; }
+  .lot-card .actions .btn:first-child { grid-column: auto; }
+  .user-pick { max-width: 96px; }
+  .lot-metrics { grid-template-columns: 1fr 1fr; }
+}
+
+/* Tablas como tarjetas: se leen completas sin desbordar la pantalla */
+@media (max-width: 720px) {
+  .table-wrap { overflow: visible; }
+  .data-table { min-width: 0 !important; width: 100%; }
+  .data-table thead { display: none; }
+  .data-table,
+  .data-table tbody,
+  .data-table tr,
+  .data-table td { display: block; width: 100%; }
+  .data-table tr {
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(220, 210, 200, 0.55);
+    border-radius: 16px;
+    margin: 0 0 10px;
+    padding: 4px 12px 8px;
+  }
+  .data-table td {
+    display: block;
+    text-align: right;
+    padding: 8px 0;
+    border-top: 1px solid rgba(220, 210, 200, 0.35);
+    white-space: normal;
+    min-width: 0 !important;
+    overflow-wrap: anywhere;
+  }
+  .data-table td:first-child { border-top: 0; }
+  .data-table td::before {
+    content: attr(data-label);
+    float: left;
+    max-width: 48%;
+    margin-right: 12px;
+    text-align: left;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #71717a;
+    line-height: 1.35;
+  }
+  .data-table td[colspan]::before { content: none; float: none; }
+  .data-table td[colspan] { text-align: center; }
+  .data-table .subcol { display: block; clear: both; text-align: right; }
+  .data-table .progress-meta { min-width: 0; width: 100%; }
+  .data-table .btn { margin-top: 4px; }
 }
 </style>
 </head>
@@ -2540,7 +2768,7 @@ const PLANT_CATALOG=[
   {area:'acabados',areaName:'Fileteado / Acabados',task:'Filetear costuras · Ruedo y puños',cost:2400,worker:'Andrés',workers:['Andrés'],defaultActive:true},
   {area:'empaque',areaName:'Empaque',task:'Doblar · Empaquetar y etiquetar',cost:1200,worker:'Valentina',workers:['Valentina','Sofía'],defaultActive:true}
 ];
-let db,view='dashboard',stageView='corte',lotChoice='',orderChoice='',modal=null,filterText='',toastTimer,weekOffset=0,loggedIn=false,showCompletedLots=false,payrollOpen=new Set();
+let db,view='dashboard',stageView='corte',lotChoice='',orderChoice='',modal=null,filterText='',toastTimer,weekOffset=0,loggedIn=false,showCompletedLots=false,payrollOpen=new Set(),boardDay='',boardStatus='todas',boardClient='',ordersStatus='todas',ordersClient='';
 function soloAssignments(list){return clone(list).map(t=>({...t,worker:t.worker,workers:[t.worker],isTeam:false}));}
 function defaultDB(){return {version:1,demo:true,seq:{order:0,lot:0,transfer:0},users:[{id:'u1',name:'Administrador',role:'admin',enabled:true},{id:'u2',name:'Supervisora de planta',role:'supervisor',enabled:true},{id:'u3',name:'Camila (Corte)',role:'corte',enabled:true},{id:'u4',name:'Laura (Confección)',role:'confeccion',enabled:true},{id:'u5',name:'Andrés (Acabados)',role:'acabados',enabled:true},{id:'u6',name:'Valentina (Empaque)',role:'empaque',enabled:true},{id:'u7',name:'Julián (Sublimación)',role:'sublimacion',enabled:true}],currentUser:'u1',orders:[],lots:[],settlements:[],transfers:[],holds:[],incidents:[],events:[]};}
 const userEnabled=(u)=>u&&u.enabled!==false;
@@ -2738,7 +2966,7 @@ function renderShell(){
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h12"/></svg>
           </button>
           <span class="breadcrumb-prefix">TRAMA <span style="padding:0 6px;color:#c2ccd7">/</span></span>
-          <b>${esc({dashboard:'Resumen general',orders:'Órdenes',work:'Producción',payroll:'Liquidación semanal',admin:'Administración'}[view]||'Producción')}</b>
+          <b>${esc({dashboard:'Resumen del día',orders:'Órdenes',work:'Producción',payroll:'Liquidación semanal',admin:'Administración'}[view]||'Producción')}</b>
         </div>
         <div class="top-controls">
           <div class="avatar">${esc(current().name.charAt(0).toUpperCase())}</div>
@@ -2759,16 +2987,336 @@ function isDueOverdue(due){if(!due)return false;const d=new Date(due+'T23:59:59'
 function matchesFilter(text,...parts){const q=String(text||'').trim().toLowerCase();if(!q)return true;return parts.some(p=>String(p||'').toLowerCase().includes(q));}
 function pageView(){if(view==='trace'){view='work';stageView='trazabilidad';}return ({dashboard:renderDashboard,orders:renderOrders,work:renderWork,payroll:renderPayroll,admin:renderAdmin}[view]||renderDashboard)();}
 function kpi(label,val,note,ic){return `<div class="kpi"><div class="kpi-head"><span>${esc(label)}</span><span class="kpi-icon">${icon(ic)}</span></div><div class="kpi-value">${fmt(val)}</div><div class="kpi-note">${esc(note)}</div></div>`;}
-function renderDashboard(){const t=totals(),curRange=getWeekRange(weekOffset),curPay=getPayItemsForWeek(curRange),activeOrders=db.orders.filter(o=>orderProgress(o).pct<100).length,evs=[...db.events].reverse().slice(0,6);return `${header('Centro de producción y destajo','Visibilidad local de órdenes, avance en planta y liquidación semanal por destajo (prototipo).',`<button class="btn" data-action="new-order" ${isManager()?'':'disabled'}>${icon('plus')} Nueva orden</button>`)}<div class="kpis">${kpi('Unidades planificadas',t.planned,`${db.orders.length} órdenes registradas`,'layers')}${kpi('Producto terminado',t.finished,t.planned?`${Math.round(t.finished/t.planned*100)}% de lo planificado`:'Sin órdenes','check')}${kpi('Destajo semana activa','$ '+fmt(curPay.total),`${curPay.people.length} personas con pago · ${curRange.label}`,'wallet')}${kpi('Órdenes activas',activeOrders,t.quality?`${fmt(t.quality)} uds en calidad/novedades`:'Producción en marcha','scissors')}</div><div class="section-grid"><section class="panel"><div class="panel-head"><div><div class="panel-title">Órdenes recientes</div><div class="panel-sub">Avance hasta producto terminado y mano de obra</div></div><button class="btn secondary sm" data-nav="orders">Ver todas ${icon('chev')}</button></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Orden / referencia</th><th>Meta</th><th>Terminadas</th><th>Avance</th><th>M.O. Prenda</th></tr></thead><tbody>${[...db.orders].reverse().slice(0,5).map(o=>{let p=orderProgress(o),snap=o.laborCostSnapshot||{unitCost:13100};return `<tr><td><span class="maincol mono">${esc(o.code)}</span><div class="subcol">${esc(o.reference)} · ${esc(o.design)}</div></td><td class="mono">${fmt(p.target)}</td><td class="mono">${fmt(p.done)}</td><td style="min-width:130px">${lineProgress(p)}</td><td class="mono"><strong>$ ${fmt(snap.unitCost)}</strong></td></tr>`}).join('')||'<tr><td colspan="5" class="empty">No hay órdenes registradas.</td></tr>'}</tbody></table></div></section><section class="panel"><div class="panel-head"><div><div class="panel-title">Estado de planta por etapa</div><div class="panel-sub">Unidades pendientes de proceso</div></div></div><div class="panel-body">${STAGES.map(s=>{let pend=db.lots.reduce((a,l)=>a+l.stocks[s].pending,0),max=Math.max(1,t.planned);return `<div class="stage-mini"><div class="stat-line"><span class="stage-name">${LABELS[s]}</span><span><b>${fmt(pend)}</b> <span class="tiny-muted">uds pendientes</span></span></div><div class="progress"><span style="width:${Math.min(100,(pend/max)*100)}%"></span></div></div>`}).join('')}<div class="inline-details">${tag('Destajo activo: $ '+fmt(curPay.total),'teal')}${tag(curPay.people.length+' operarios en nómina','green')}</div></div></section></div><div class="section-grid"><section class="panel"><div class="panel-head"><div><div class="panel-title">Actividad de producción</div><div class="panel-sub">Historial de registros y avances</div></div><button class="btn secondary sm" data-nav="payroll">Liquidación ${icon('chev')}</button></div><div class="panel-body"><div class="timeline">${evs.map(e=>`<div class="event"><div class="event-dot">${e.type==='TRABAJO'?'✓':e.type==='CREADA'?'✦':'•'}</div><div class="event-content"><div class="event-desc">${esc(e.description)}</div><div class="event-extra">${esc(db.lots.find(x=>x.id===e.lotId)?.code||'')} · ${esc(e.actor)} · ${time(e.when)}</div></div></div>`).join('')||'<div class="empty">Aún no hay movimientos.</div>'}</div></div></section><section class="panel"><div class="panel-head"><div><div class="panel-title">Reglas de planta y destajo</div><div class="panel-sub">Modelo operativo Pimienta</div></div></div><div class="panel-body"><div class="compact-list"><div class="compact-row"><div><div class="compact-row-name">Destajo = Tarifa × Unidades</div><div class="compact-row-desc">Pago por prendas efectivamente procesadas en cada área.</div></div>${tag('Activo','green')}</div><div class="compact-row"><div><div class="compact-row-name">Tarifas congeladas en la OP</div><div class="compact-row-desc">Cambios en el catálogo no alteran el valor pactado de la orden.</div></div>${tag('Activo','green')}</div><div class="compact-row"><div><div class="compact-row-name">Pago al operario del registro</div><div class="compact-row-desc">La liquidación usa quién registró el trabajo; equipo 1/N solo si se marca en la OP.</div></div>${tag('Activo','green')}</div><div class="compact-row"><div><div class="compact-row-name">Cierre semanal Lun–Dom</div><div class="compact-row-desc">Permite cerrar la nómina y congelar montos pagados.</div></div>${tag('Activo','green')}</div></div></div></section></div>`;}
-function renderOrders(){const filtered=[...db.orders].reverse().filter(o=>{const lots=orderLots(o);return matchesFilter(filterText,o.code,o.reference,o.design,o.customer,...lots.map(l=>l.code));});return `${header('Órdenes de producción','Cada orden contiene curva de tallas por lote y asignación congelada de tareas con tarifa de mano de obra.',`<button class="btn" data-action="new-order" ${isManager()?'':'disabled'}>${icon('plus')} Crear orden</button>`)}<div class="filters" style="margin-bottom:14px"><label class="screen-reader" for="orders-filter">Buscar órdenes</label><input id="orders-filter" type="search" placeholder="Buscar por OP, referencia, diseño o lote…" value="${esc(filterText)}" style="flex:1;min-width:220px;padding:10px 12px;border:1px solid #dce4ed;border-radius:10px;font:inherit"/></div><section class="panel"><div class="panel-head"><div><div class="panel-title">Órdenes registradas</div><div class="panel-sub">${filtered.length} de ${db.orders.length} órdenes · ${db.lots.length} lotes</div></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Orden</th><th>Referencia / diseño</th><th>Cliente / destino</th><th>Lotes</th><th>Unidades</th><th>Mano de obra</th><th>Avance</th><th>Detalle</th></tr></thead><tbody>${filtered.map(o=>{let p=orderProgress(o);let unitM=o.laborCostSnapshot?.unitCost||(o.assignments||[]).reduce((a,t)=>a+t.cost,0)||13100;let totM=o.laborCostSnapshot?.totalCost||(unitM*p.target);const overdue=isDueOverdue(o.due);return `<tr><td class="maincol mono">${esc(o.code)}<div class="subcol">${time(o.createdAt)}${o.due?` · Entrega ${esc(o.due)}`:''}${overdue?' · <span style="color:#DC2626;font-weight:700">Vencida</span>':''}</div></td><td><div class="maincol">${esc(o.reference)}</div><div class="subcol">${esc(o.design)}</div></td><td>${esc(o.customer)}</td><td>${orderLots(o).length}</td><td><strong>${fmt(p.done)}</strong> / ${fmt(p.target)}</td><td class="mono"><strong>$ ${fmt(unitM)}</strong><div class="subcol">Total: $ ${fmt(totM)}</div></td><td style="min-width:130px">${lineProgress(p)}</td><td><button class="btn secondary sm" data-action="order-detail" data-id="${esc(o.id)}">Ver detalle</button></td></tr>`}).join('')||`<tr><td colspan="8" class="empty">${filterText?'Sin coincidencias para la búsqueda.':'Crea la primera orden de producción.'}</td></tr>`}</tbody></table></div></section>${orderChoice&&db.orders.some(o=>o.id===orderChoice)?renderOrderDetail(getOrder(orderChoice)):''}`;}
-function renderOrderDetail(o){const ls=orderLots(o),p=orderProgress(o);const snap=o.laborCostSnapshot||{unitCost:(o.assignments||[]).reduce((a,t)=>a+t.cost,0)||13100,totalCost:0};const unitCost=snap.unitCost||(o.assignments||[]).reduce((a,t)=>a+t.cost,0);const totalCost=snap.totalCost||(unitCost*p.target);const earnedCost=unitCost*p.done;const assignments=o.assignments&&o.assignments.length?o.assignments:PLANT_CATALOG;const overdue=isDueOverdue(o.due);return `<section class="panel" style="margin-top:18px"><div class="panel-head"><div><div class="panel-title">${esc(o.code)} · ${esc(o.design)}</div><div class="panel-sub">${esc(o.reference)} · ${esc(o.customer)} · ${fmt(p.target)} unidades</div></div><button class="btn secondary sm" data-action="close-order-detail">Cerrar</button></div><div class="panel-body" style="padding-bottom:6px"><div class="inline-details" style="margin:8px 0 12px">${o.due?tag((overdue?'Vencida · ':'Entrega · ')+o.due,overdue?'red':'teal'):tag('Sin fecha objetivo','gray')}${o.notes?tag('Con observaciones','teal'):tag('Sin observaciones','gray')}</div>${o.notes?`<div class="note" style="margin-bottom:14px"><b>Observaciones:</b> ${esc(o.notes)}</div>`:''}<div class="detail-grid" style="margin:12px 0 16px"><div class="lot-measure"><b>$ ${fmt(unitCost)}</b><span>M.O. / Prenda (congelada)</span></div><div class="lot-measure"><b>$ ${fmt(totalCost)}</b><span>Presupuesto total M.O.</span></div><div class="lot-measure"><b>$ ${fmt(earnedCost)}</b><span>Devengado (${p.done} uds listas)</span></div><div class="lot-measure"><b>$ ${fmt(totalCost-earnedCost)}</b><span>Saldo pendiente M.O.</span></div></div><div style="font-weight:760;font-size:12.5px;color:#33455b;margin:12px 0 6px">Asignación de Planta y Tarifas por Prenda</div><div class="table-wrap" style="margin-bottom:18px"><table class="data-table"><thead><tr><th>Área de planta</th><th>Tarea asignada</th><th>Persona responsable</th><th>Tarifa / prenda</th><th>Total asignado OP</th></tr></thead><tbody>${assignments.map(a=>`<tr><td class="maincol">${esc(a.areaName)}</td><td>${esc(a.task)}${a.isTeam?` · Equipo (${(a.workers||[]).length})`:''}</td><td><span class="tag teal">${esc(a.isTeam?(a.workers||[]).join(' · '):a.worker)}</span></td><td class="mono"><strong>$ ${fmt(a.cost)}</strong></td><td class="mono">$ ${fmt(a.cost*p.target)}</td></tr>`).join('')}</tbody></table></div><div style="font-weight:760;font-size:12.5px;color:#33455b;margin:10px 0 6px">Lotes por Talla (Curva de Producción)</div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Lote</th><th>Talla</th><th>Meta</th>${STAGES.map(s=>`<th>${LABELS[s]}</th>`).join('')}<th>Terminadas</th><th>Detalle</th></tr></thead><tbody>${ls.map(l=>`<tr><td class="maincol mono">${esc(l.code)}</td><td>${esc(l.size)}</td><td>${fmt(l.planned)}</td>${STAGES.map(s=>`<td>${fmt(l.stocks[s].pending)}</td>`).join('')}<td><strong>${fmt(l.stocks.finished)}</strong><div class="subcol">Pend ${fmt(lotPendingInPlant(l))} · Ret ${fmt(l.stocks.held)} · Merma ${fmt(l.stocks.scrap)}</div></td><td><button class="btn secondary sm" data-action="trace-lot" data-id="${esc(l.id)}">Historial</button></td></tr>`).join('')}</tbody></table></div></section>`;}
+function isoDay(value){
+  if(typeof value==='string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const d=value instanceof Date?value:new Date(value);
+  if(Number.isNaN(d.getTime())) return '';
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function shiftIsoDay(iso, delta){
+  const [y,m,day]=String(iso||'').split('-').map(Number);
+  const dt=new Date(y, (m||1)-1, day||1);
+  dt.setDate(dt.getDate()+delta);
+  return isoDay(dt);
+}
+function prettyDay(iso){
+  const [y,m,d]=String(iso||'').split('-').map(Number);
+  const label=new Date(y, (m||1)-1, d||1).toLocaleDateString('es-CO',{weekday:'long', day:'numeric', month:'long'});
+  return label.charAt(0).toUpperCase()+label.slice(1);
+}
+function shortDue(due){
+  if(!due) return 'Sin fecha de entrega';
+  const [y,m,d]=due.slice(0,10).split('-').map(Number);
+  if(!y||!m||!d) return 'Sin fecha de entrega';
+  return new Date(y, m-1, d).toLocaleDateString('es-CO',{day:'numeric', month:'short', year:'numeric'});
+}
+function clockTime(value){
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString('es-CO',{hour:'2-digit', minute:'2-digit'});
+}
+function orderBoard(o){
+  const lots=orderLots(o);
+  const route=orderAssignedAreas(o);
+  const steps=route.length?route:[...STAGES];
+  const pending={};
+  for(const s of steps) pending[s]=0;
+  let planned=0, finished=0, held=0, scrap=0;
+  for(const l of lots){
+    planned+=l.planned;
+    finished+=l.stocks.finished||0;
+    held+=l.stocks.held||0;
+    scrap+=l.stocks.scrap||0;
+    for(const s of steps){
+      const bin=l.stocks[s]||{pending:0,ready:0};
+      pending[s]+=(bin.pending||0)+(bin.ready||0);
+    }
+  }
+  const porHacer=pending[steps[0]]||0;
+  const enProceso=Math.max(0, planned-porHacer-finished-scrap);
+  const complete=planned>0 && finished>=planned;
+  const started=finished>0 || scrap>0 || held>0 || steps.some((s,i)=>i>0 && pending[s]>0) || porHacer<planned;
+  const states={};
+  steps.forEach((s,i)=>{
+    const qty=pending[s]||0;
+    const downstream=steps.slice(i+1).reduce((sum,k)=>sum+(pending[k]||0),0)+finished;
+    states[s]=qty>0?'active':(downstream>0?'done':'wait');
+  });
+  states.listo=complete?'done':(finished>0?'active':'wait');
+  const activeStep=steps.find(s=>states[s]==='active')||null;
+  return {lots, steps, pending, planned, finished, held, scrap, porHacer, enProceso, complete, started, states, activeStep};
+}
+function orderTouchedOn(o, day){
+  const ids=new Set(orderLots(o).map(l=>l.id));
+  return db.events.some(e=>ids.has(e.lotId) && isoDay(e.when)===day);
+}
+function routeMarkup(snap){
+  const nodes=snap.steps.map(s=>({label:LABELS[s]||s, state:snap.states[s]})).concat([{label:'Listo', state:snap.states.listo}]);
+  return `<ol class="route" aria-label="Paso del pedido">${nodes.map(n=>`<li class="route-step ${n.state}"><span class="dot" aria-hidden="true">${n.state==='done'?'✓':''}</span><span class="name">${esc(n.label)}</span></li>`).join('')}</ol>`;
+}
+function orderChip(snap, late){
+  const where=snap.activeStep?(LABELS[snap.activeStep]||'planta'):'planta';
+  const kind=late?'late':snap.complete?'done':snap.started?'live':'wait';
+  const text=late?'Entrega vencida':snap.complete?'Lista':snap.started?`En ${where}`:'Sin empezar';
+  return {kind, text, where};
+}
+function moveVerb(type){
+  if(type==='TRABAJO') return 'completó';
+  if(type==='MERMA') return 'registró daño';
+  if(type==='CALIDAD') return 'retuvo';
+  if(type==='CREADA') return 'abrió el pedido';
+  return 'registró';
+}
+function renderDashboard(){
+  if(!boardDay) boardDay=isoDay(new Date());
+  const today=isoDay(new Date());
+  const dayOrders=db.orders.filter(o=>orderTouchedOn(o, boardDay) || (o.due && o.due.slice(0,10)===boardDay));
+  const clients=[...new Set(db.orders.map(o=>o.customer).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+  const rows=dayOrders.map(o=>{
+    const snap=orderBoard(o);
+    const late=!!(o.due && o.due.slice(0,10)<boardDay && !snap.complete);
+    const status=snap.complete?'listas':(late?'atrasadas':'proceso');
+    return {o, snap, late, status};
+  }).filter(row=>{
+    if(boardClient && row.o.customer!==boardClient) return false;
+    if(boardStatus==='listas') return row.snap.complete;
+    if(boardStatus==='atrasadas') return row.late;
+    if(boardStatus==='proceso') return !row.snap.complete;
+    return true;
+  });
+  rows.sort((a,b)=>{
+    const rank={atrasadas:0, proceso:1, listas:2};
+    return (rank[a.status]-rank[b.status]) || a.o.customer.localeCompare(b.o.customer,'es') || a.o.code.localeCompare(b.o.code);
+  });
+  const planned=rows.reduce((s,r)=>s+r.snap.planned,0);
+  const finished=rows.reduce((s,r)=>s+r.snap.finished,0);
+  const porHacer=rows.reduce((s,r)=>s+r.snap.porHacer,0);
+  const enProceso=rows.reduce((s,r)=>s+r.snap.enProceso,0);
+  const scrap=rows.reduce((s,r)=>s+r.snap.scrap,0);
+  const pct=n=>planned?Math.max(0, n/planned*100):0;
+  const sentence=!dayOrders.length
+    ? 'Este día no hay registros.'
+    : !rows.length
+      ? 'Ningún pedido coincide con este filtro.'
+      : boardDay===today
+        ? `Hoy van ${fmt(finished)} de ${fmt(planned)} prendas listas.`
+        : boardDay===shiftIsoDay(today,-1)
+          ? `Ayer quedaron ${fmt(finished)} de ${fmt(planned)} prendas listas.`
+          : `Van ${fmt(finished)} de ${fmt(planned)} prendas listas.`;
+  const filters=`<div class="board-filters">
+      <div class="day-switch" role="group" aria-label="Fecha">
+        <button type="button" class="day-chip ${boardDay===shiftIsoDay(today,-1)?'on':''}" data-action="board-day" data-day="yesterday">Ayer</button>
+        <button type="button" class="day-chip ${boardDay===today?'on':''}" data-action="board-day" data-day="today">Hoy</button>
+        <label class="day-field"><span class="screen-reader">Elegir fecha</span><input id="board-date" type="date" value="${esc(boardDay)}"/></label>
+      </div>
+      <label class="board-select"><span class="screen-reader">Estado</span>
+        <select id="board-status" aria-label="Estado">
+          <option value="todas" ${boardStatus==='todas'?'selected':''}>Todos los estados</option>
+          <option value="proceso" ${boardStatus==='proceso'?'selected':''}>Sin terminar</option>
+          <option value="listas" ${boardStatus==='listas'?'selected':''}>Terminadas</option>
+          <option value="atrasadas" ${boardStatus==='atrasadas'?'selected':''}>Atrasadas</option>
+        </select>
+      </label>
+      <label class="board-select"><span class="screen-reader">Cliente</span>
+        <select id="board-client" aria-label="Cliente">
+          <option value="">Todos los clientes</option>
+          ${clients.map(c=>`<option value="${esc(c)}" ${boardClient===c?'selected':''}>${esc(c)}</option>`).join('')}
+        </select>
+      </label>
+    </div>`;
+  const bar=planned?`<div class="mix">
+      <div class="mix-bar" role="img" aria-label="Por hacer ${fmt(porHacer)}, en proceso ${fmt(enProceso)}, terminadas ${fmt(finished)}">
+        <span class="todo" style="width:${pct(porHacer)}%"></span>
+        <span class="live" style="width:${pct(enProceso)}%"></span>
+        <span class="done" style="width:${pct(finished)}%"></span>
+        ${scrap?`<span class="scrap" style="width:${pct(scrap)}%"></span>`:''}
+      </div>
+      <div class="mix-legend">
+        <span><i class="swatch todo"></i>Por hacer <b>${fmt(porHacer)}</b></span>
+        <span><i class="swatch live"></i>En proceso <b>${fmt(enProceso)}</b></span>
+        <span><i class="swatch done"></i>Terminadas <b>${fmt(finished)}</b></span>
+      </div>
+      ${scrap?`<p class="mix-note">${fmt(scrap)} ${scrap===1?'dañada':'dañadas'}, fuera de la entrega.</p>`:''}
+    </div>`:'';
+  const cards=rows.map(({o,snap,late})=>{
+    const chip=orderChip(snap, late);
+    const where=chip.where;
+    const moves=db.events.filter(e=>snap.lots.some(l=>l.id===e.lotId) && isoDay(e.when)===boardDay).sort((a,b)=>a.when<b.when?1:-1);
+    const created=moves.filter(e=>e.type==='CREADA');
+    const worked=moves.filter(e=>e.type!=='CREADA');
+    const place=snap.complete?'producto listo':where;
+    const lineOf=e=>{
+      const stage=e.meta&&e.meta.stage&&LABELS[e.meta.stage]?LABELS[e.meta.stage]:'';
+      const qty=Number(e.qty)||0;
+      return `<div class="day-move"><div><b>${esc(e.actor||'Planta')}</b> ${moveVerb(e.type)}${stage?` en ${esc(stage)}`:''}${qty?` · ${fmt(qty)} uds`:''}</div><time>${esc(clockTime(e.when))}</time></div>`;
+    };
+    const opened=created.length?`<div class="day-move"><div><b>${esc(created[0].actor||'Planta')}</b> abrió el pedido · ${fmt(created.reduce((s,e)=>s+(Number(e.qty)||0),0))} uds</div><time>${esc(clockTime(created[0].when))}</time></div>`:'';
+    const logHtml=(opened||worked.length)?opened+worked.map(lineOf).join(''):`<p class="day-empty">Sin registros este día. El pedido sigue en ${esc(place)}.</p>`;
+    return `<article class="job-card">
+      <div class="job-top">
+        <div>
+          <div class="job-client">${esc(o.customer)}</div>
+          <div class="job-garment">${esc(o.reference)} · ${esc(o.design)}</div>
+          <div class="job-code">${esc(o.code)} · ${o.due?`Entrega ${esc(shortDue(o.due))}`:'Sin fecha de entrega'}</div>
+        </div>
+        <span class="job-chip ${chip.kind}">${esc(chip.text)}</span>
+      </div>
+      ${routeMarkup(snap)}
+      <div class="job-units"><span><b>${fmt(snap.finished)}</b> listas</span><span><b>${fmt(Math.max(0,snap.planned-snap.finished))}</b> pendientes</span><span><b>${fmt(snap.planned)}</b> pedidas</span></div>
+      <div class="day-log"><div class="day-log-title">Movimiento del día</div>${logHtml}</div>
+      <button type="button" class="btn secondary sm job-open" data-action="open-job" data-id="${esc(o.id)}">Ver pedido</button>
+    </article>`;
+  }).join('');
+  const empty=!dayOrders.length
+    ? `<div class="board-empty"><strong>Este día no hay registros.</strong><p>Elige otra fecha, o un día en el que haya trabajo registrado o una entrega.</p></div>`
+    : !rows.length
+      ? `<div class="board-empty"><strong>Ningún pedido coincide con este filtro.</strong><p>Prueba con todos los estados o con todos los clientes.</p></div>`
+      : '';
+  return `<section class="board">
+    <div class="board-top">
+      <div>
+        <div class="board-kicker">${esc(prettyDay(boardDay))}</div>
+        <h1>Resumen del día</h1>
+        <p class="board-sentence">${esc(sentence)}</p>
+      </div>
+      <button class="btn" data-action="new-order" ${isManager()?'':'disabled'}>${icon('plus')} Nueva orden</button>
+    </div>
+    ${bar}
+    ${filters}
+    <div class="job-list">${cards||empty}</div>
+  </section>`;
+}
+function renderOrders(){
+  const chosen=orderChoice&&db.orders.find(o=>o.id===orderChoice);
+  if(chosen) return renderOrderDetail(chosen);
+  if(orderChoice) orderChoice='';
+  const clients=[...new Set(db.orders.map(o=>o.customer).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+  const rows=db.orders.map(o=>{
+    const snap=orderBoard(o);
+    const late=!!(o.due&&isDueOverdue(o.due)&&!snap.complete);
+    const status=snap.complete?'listas':(late?'atrasadas':'proceso');
+    return {o, snap, late, status};
+  }).filter(row=>{
+    const lots=row.snap.lots;
+    if(!matchesFilter(filterText, row.o.code, row.o.reference, row.o.design, row.o.customer, ...lots.map(l=>l.code))) return false;
+    if(ordersClient&&row.o.customer!==ordersClient) return false;
+    if(ordersStatus==='listas') return row.snap.complete;
+    if(ordersStatus==='atrasadas') return row.late;
+    if(ordersStatus==='proceso') return !row.snap.complete;
+    return true;
+  });
+  rows.sort((a,b)=>{
+    const rank={atrasadas:0, proceso:1, listas:2};
+    return (rank[a.status]-rank[b.status]) || a.o.customer.localeCompare(b.o.customer,'es') || a.o.code.localeCompare(b.o.code);
+  });
+  const planned=rows.reduce((s,r)=>s+r.snap.planned,0);
+  const finished=rows.reduce((s,r)=>s+r.snap.finished,0);
+  const pedido=rows.length===1?'pedido':'pedidos';
+  const sentence=!db.orders.length
+    ? 'Aún no hay pedidos.'
+    : !rows.length
+      ? 'Ningún pedido coincide con este filtro.'
+      : `${rows.length} ${pedido} · ${fmt(finished)} de ${fmt(planned)} prendas listas.`;
+  const cards=rows.map(({o,snap,late})=>{
+    const chip=orderChip(snap, late);
+    return `<article class="job-card">
+      <div class="job-top">
+        <div>
+          <div class="job-client">${esc(o.customer)}</div>
+          <div class="job-garment">${esc(o.reference)} · ${esc(o.design)}</div>
+          <div class="job-code">${esc(o.code)} · ${o.due?`Entrega ${esc(shortDue(o.due))}`:'Sin fecha de entrega'}</div>
+        </div>
+        <span class="job-chip ${chip.kind}">${esc(chip.text)}</span>
+      </div>
+      ${routeMarkup(snap)}
+      <div class="job-units"><span><b>${fmt(snap.finished)}</b> listas</span><span><b>${fmt(Math.max(0,snap.planned-snap.finished))}</b> pendientes</span><span><b>${fmt(snap.planned)}</b> pedidas</span></div>
+      <button type="button" class="btn secondary sm job-open" data-action="open-job" data-id="${esc(o.id)}">Abrir pedido</button>
+    </article>`;
+  }).join('');
+  const empty=!db.orders.length
+    ? `<div class="board-empty"><strong>Aún no hay pedidos.</strong><p>Crea la primera orden para verla aquí, con su ruta y sus tallas.</p></div>`
+    : !rows.length
+      ? `<div class="board-empty"><strong>Ningún pedido coincide con este filtro.</strong><p>Prueba otra búsqueda, todos los estados o todos los clientes.</p></div>`
+      : '';
+  return `<section class="board">
+    <div class="board-top">
+      <div>
+        <div class="board-kicker">Planta</div>
+        <h1>Órdenes de producción</h1>
+        <p class="board-sentence">${esc(sentence)}</p>
+      </div>
+      <button class="btn" data-action="new-order" ${isManager()?'':'disabled'}>${icon('plus')} Crear orden</button>
+    </div>
+    <div class="board-filter-block">
+      <div class="day-log-title">Filtrar pedidos</div>
+      <div class="board-filters">
+        <label class="board-search"><span class="screen-reader">Buscar pedidos</span><input id="orders-filter" type="search" placeholder="Buscar por cliente, prenda, orden o lote…" value="${esc(filterText)}"/></label>
+        <label class="board-select"><span class="screen-reader">Estado</span>
+          <select id="orders-status" aria-label="Estado del pedido">
+            <option value="todas" ${ordersStatus==='todas'?'selected':''}>Todos los estados</option>
+            <option value="proceso" ${ordersStatus==='proceso'?'selected':''}>Sin terminar</option>
+            <option value="listas" ${ordersStatus==='listas'?'selected':''}>Terminadas</option>
+            <option value="atrasadas" ${ordersStatus==='atrasadas'?'selected':''}>Atrasadas</option>
+          </select>
+        </label>
+        <label class="board-select"><span class="screen-reader">Cliente</span>
+          <select id="orders-client" aria-label="Cliente">
+            <option value="">Todos los clientes</option>
+            ${clients.map(c=>`<option value="${esc(c)}" ${ordersClient===c?'selected':''}>${esc(c)}</option>`).join('')}
+          </select>
+        </label>
+      </div>
+    </div>
+    <div class="job-list">${cards||empty}</div>
+  </section>`;
+}
+function renderOrderDetail(o){
+  const snap=orderBoard(o);
+  const late=!!(o.due&&isDueOverdue(o.due)&&!snap.complete);
+  const chip=orderChip(snap, late);
+  const assignments=o.assignments&&o.assignments.length?o.assignments:[];
+  const unitCost=o.laborCostSnapshot?.unitCost??assignments.reduce((s,a)=>s+Number(a.cost||0),0);
+  const totalCost=o.laborCostSnapshot?.totalCost??(unitCost*snap.planned);
+  const sizes=snap.lots.map(l=>`<div class="size-line"><b>Talla ${esc(l.size)}</b><span>${fmt(l.stocks.finished||0)} de ${fmt(l.planned)} listas</span></div>`).join('')||`<p class="day-empty">Este pedido no tiene tallas.</p>`;
+  const labor=assignments.length?assignments.map(a=>{
+    const who=a.isTeam&&a.workers&&a.workers.length?a.workers.join(' · '):(a.worker||'Sin asignar');
+    const role=[a.task, who].filter(Boolean).join(' · ');
+    return `<div class="labor-line"><div><b>${esc(a.areaName||LABELS[a.area]||a.area||'Área')}</b><span>${esc(role)}</span></div><b>$ ${fmt(a.cost||0)}</b></div>`;
+  }).join(''):`<p class="day-empty">Sin asignación de planta.</p>`;
+  return `<section class="board">
+    <div class="board-top">
+      <div>
+        <button type="button" class="btn secondary sm" data-action="close-order-detail">← Volver a la lista</button>
+        <div class="job-client" style="margin-top:14px">${esc(o.customer)}</div>
+        <h1>${esc(o.reference)}</h1>
+        <p class="board-sentence">${esc(o.design)}</p>
+        <div class="job-code">${esc(o.code)} · ${o.due?`Entrega ${esc(shortDue(o.due))}`:'Sin fecha de entrega'}</div>
+        ${o.notes?`<p class="order-note">${esc(o.notes)}</p>`:''}
+      </div>
+      <span class="job-chip ${chip.kind}">${esc(chip.text)}</span>
+    </div>
+    <article class="job-card">
+      ${routeMarkup(snap)}
+      <div class="job-units"><span><b>${fmt(snap.finished)}</b> listas</span><span><b>${fmt(Math.max(0,snap.planned-snap.finished))}</b> pendientes</span><span><b>${fmt(snap.planned)}</b> pedidas</span></div>
+    </article>
+    <article class="job-card">
+      <div class="day-log-title">Tallas</div>
+      <div class="size-list">${sizes}</div>
+    </article>
+    <article class="job-card">
+      <div class="day-log-title">Mano de obra del pedido</div>
+      <div class="labor-head"><span><b>$ ${fmt(unitCost)}</b> por prenda</span><span><b>$ ${fmt(totalCost)}</b> total del pedido</span></div>
+      <div class="labor-list">${labor}</div>
+    </article>
+  </section>`;
+}
 function renderWork(){const isTrace=stageView==='trazabilidad';const tabs=[...STAGES.map(s=>`<button class="stage-tab ${s===stageView?'active':''}" data-stage="${s}">${LABELS[s]}</button>`),`<button class="stage-tab ${isTrace?'active':''}" data-stage="trazabilidad">${icon('trace')} Trazabilidad y auditoría</button>`].join('');if(isTrace){const selected=db.lots.find(l=>l.id===lotChoice)||db.lots[0];if(selected)lotChoice=selected.id;const events=selected?[...db.events].filter(e=>e.lotId===selected.id).reverse():[];const openHolds=selected?(db.holds||[]).filter(h=>h.lotId===selected.id&&h.status==='open'):[];return `${header('Producción / Trazabilidad por lote','Consulta el saldo de cada área, movimientos e historial de auditoría de cualquier lote sin salir de Producción.')}<div class="stage-tabs">${tabs}</div><div class="filters"><label class="screen-reader" for="lot-choice">Elegir lote</label><select id="lot-choice" aria-label="Elegir lote">${db.lots.map(l=>`<option value="${esc(l.id)}" ${l.id===lotChoice?'selected':''}>${esc(l.code)} · ${esc(getOrder(l.orderId).design)} · Talla ${esc(l.size)}</option>`).join('')}</select><button class="btn secondary" data-action="export-csv">${icon('download')} CSV de saldos</button></div>${selected?`<div class="section-grid trace-layout"><section class="panel"><div class="panel-head"><div><div class="panel-title">${esc(selected.code)} · Talla ${esc(selected.size)}</div><div class="panel-sub">${esc(lotDetail(selected))}</div></div></div><div class="panel-body">${renderLotStatusBoard(selected)}${renderLotPipeline(selected)}<div class="note" style="margin:12px 0 14px">Resumen de supervisión: <b>${fmt(lotStatusSummary(selected).finished)}</b> terminadas · <b>${fmt(lotStatusSummary(selected).pending)}</b> por terminar · <b>${fmt(lotStatusSummary(selected).held)}</b> en revisión · <b>${fmt(lotStatusSummary(selected).scrap)}</b> dañadas en proceso.</div>${traceTable(selected)}${openHolds.length?`<div style="margin-top:14px"><div style="font-weight:760;font-size:12.5px;margin-bottom:8px">Retenciones abiertas</div>${openHolds.map(h=>`<div class="compact-row"><div><div class="compact-row-name">${fmt(h.qty)} uds · ${esc(LABELS[h.stage]||h.stage)}</div><div class="compact-row-desc">${esc(h.reason)} · ${esc(h.actor)}</div></div><div class="actions" style="display:flex;gap:6px"><button class="btn secondary sm" data-action="release-hold" data-id="${esc(h.id)}" ${isManager()?'':'disabled'}>Liberar</button><button class="btn danger sm" data-action="scrap-hold" data-id="${esc(h.id)}" ${isManager()?'':'disabled'}>Merma</button></div></div>`).join('')}</div>`:''}</div></section><section class="panel"><div class="panel-head"><div><div class="panel-title">Historial de operaciones</div><div class="panel-sub">${events.length} eventos registrados para este lote</div></div></div><div class="panel-body"><div class="timeline" style="max-height:590px;overflow:auto">${events.map(e=>`<div class="event"><div class="event-dot">${e.type==='TRABAJO'?'✓':e.type==='CREADA'?'✦':e.type==='CALIDAD'||e.type==='MERMA'?'!':'•'}</div><div class="event-content"><div class="event-desc">${esc(e.description)}</div><div class="event-extra">${esc(e.type)} · ${esc(e.actor)} · ${time(e.when)}</div></div></div>`).join('')||'<p class="empty">No hay registros para este lote.</p>'}</div></div></section></div>`:`<section class="panel empty">No hay lotes todavía.</section>`}`;}
 const activeLots=db.lots.filter(l=>l.stocks[stageView]&&l.stocks[stageView].pending>0);
 const doneLots=showCompletedLots?db.lots.filter(l=>l.stocks[stageView]&&l.stocks[stageView].pending===0&&(l.stocks.finished>0||orderAssignedAreas(getOrder(l.orderId)).includes(stageView)&&STAGES.some(s=>{const i=STAGES.indexOf(s);return i>STAGES.indexOf(stageView)&&l.stocks[s].pending+l.stocks[s].ready>0;}))):[];
 const canWork=authorized(stageView);
 const renderLotCard=(l)=>{const b=l.stocks[stageView],o=getOrder(l.orderId);const assign=(o.assignments||[]).find(a=>a.area===stageView)||PLANT_CATALOG.find(a=>a.area===stageView);const areaApplies=orderAssignedAreas(o).includes(stageView);const allowProcess=b.pending>0&&canWork&&areaApplies;const allowHold=b.pending>0&&(isManager()||canWork)&&areaApplies;return `<section class="lot-card"><div class="lot-card-top"><div><div class="eyebrow mono">${esc(l.code)} · ${esc(o.code)}</div><div class="lot-name">${esc(o.reference)}</div><div class="lot-meta">${esc(o.design)} · Talla ${esc(l.size)}</div></div>${tag(b.pending>0?'En estación':(areaApplies?'Sin pendientes':'No aplica a esta OP'),b.pending>0?'teal':'gray')}</div><div class="lot-metrics"><div class="lot-measure"><b>${fmt(l.planned)}</b><span>Meta total</span></div><div class="lot-measure"><b>${fmt(b.pending)}</b><span>Pendientes en ${LABELS[stageView]}</span></div><div class="lot-measure"><b>${fmt(l.stocks.finished)}</b><span>Terminadas</span></div></div>${renderLotStatusBoard(l,true)}${assign&&areaApplies?`<div style="font-size:11px;color:#18534c;background:#e9f6f3;padding:6px 9px;border-radius:7px;margin:10px 0 6px;display:flex;justify-content:space-between;align-items:center"><span><b>${esc(assign.worker)}</b> · ${esc(assign.task)}</span><span><b>$ ${fmt(assign.cost)}</b> / ud</span></div>`:''}<div class="actions"><button class="btn sm" data-action="process" data-id="${esc(l.id)}" data-stage="${stageView}" ${allowProcess?'':'disabled'} title="${!areaApplies?'Esta área no aplica a la orden':(!canWork?'Tu rol simulado no puede registrar en '+LABELS[stageView]:(b.pending>0?'Registrar trabajo':'Sin unidades pendientes'))}">${icon('check')} Registrar avance</button><button class="btn secondary sm" data-action="hold" data-id="${esc(l.id)}" data-stage="${stageView}" ${allowHold?'':'disabled'} title="Retener unidades por calidad">Retener</button><button class="btn secondary sm" data-action="trace-lot" data-id="${esc(l.id)}">${icon('trace')} Trazabilidad</button></div></section>`;};
 return `${header('Producción por área','Registra por estación: buenas (avanzan), dañadas (merma) y retención. El destajo solo liquida unidades buenas.')}<div class="stage-tabs">${tabs}</div><div class="filters" style="margin-bottom:12px"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="show-completed-lots" ${showCompletedLots?'checked':''}/> Mostrar lotes sin pendientes en esta estación</label></div><div class="lot-grid">${activeLots.map(renderLotCard).join('')||`<section class="panel empty" style="grid-column:1/-1">${icon('box')}<strong>No hay unidades pendientes en ${LABELS[stageView]}.</strong>Completa trabajo en la etapa anterior, revisa si la OP incluye esta área, o crea una nueva orden.</section>`}${doneLots.map(renderLotCard).join('')}</div><div class="note">En <b>Registrar avance</b> puedes marcar buenas, dañadas y retención en un solo paso. El destajo solo liquida unidades buenas. Las áreas no asignadas en la OP se omiten al avanzar.</div>`;}
-function renderPayroll(){const range=getWeekRange(weekOffset),data=getPayItemsForWeek(range),totalUnits=data.items.reduce((s,i)=>s+i.qty,0),totalLots=new Set(data.items.map(i=>i.lotId)).size,areaTotals={};for(const it of data.items){if(!areaTotals[it.stage])areaTotals[it.stage]={name:it.areaName,total:0,units:0};areaTotals[it.stage].total+=it.total;areaTotals[it.stage].units+=it.qty;}const actions=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><div style="display:flex;gap:4px"><button class="btn secondary sm" data-action="prev-week" title="Semana anterior">← Ant.</button><button class="btn secondary sm" data-action="current-week" ${weekOffset===0?'disabled':''}>Actual</button><button class="btn secondary sm" data-action="next-week" title="Semana siguiente" ${weekOffset>=0?'disabled':''}>Sig. →</button></div>${data.isClosed?`<button class="btn danger sm" data-action="reopen-week" data-week="${esc(range.weekKey)}" ${hasAdmin()?'':'disabled'}>Reabrir semana</button>`:`<button class="btn sm" data-action="close-week" data-week="${esc(range.weekKey)}" ${isManager()&&data.items.length?'':'disabled'}>${icon('check')} Cerrar semana</button>`}<button class="btn secondary sm" data-action="print-payroll">${icon('download')} Imprimir</button><button class="btn secondary sm" data-action="export-payroll">${icon('download')} CSV</button></div>`;return `${header('Liquidación semanal por destajo',`Ventana de pago: <b>${esc(range.label)}</b> (${esc(range.weekKey)})`,actions)}${data.isClosed?`<div class="banner" style="background:#eaf2fb;border-color:#c8dbf4;color:#274f82">${icon('info')}<span><strong>Semana cerrada y congelada.</strong> Cerrada por <b>${esc(data.settlement.closedBy)}</b> el ${time(data.settlement.closedAt)}. Los montos se encuentran protegidos ante cambios de tarifas posteriores.</span></div>`:''}<div class="kpis">${kpi('Total a liquidar','$ '+fmt(data.total),`${data.people.length} personas con pago`,'wallet')}${kpi('Prendas liquidadas',totalUnits,'Unidades procesadas','layers')}${kpi('Lotes involucrados',totalLots,'Lotes con avance','scissors')}${kpi('Estado de semana',data.isClosed?'Cerrada':'Abierta',data.isClosed?'Liquidación congelada':'Acumulación en vivo','check')}</div><section class="panel" style="margin-bottom:18px"><div class="panel-head"><div><div class="panel-title">Mano de obra por área de planta</div><div class="panel-sub">Destajo generado en la semana lun–dom</div></div></div><div class="panel-body"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">${STAGES.map(s=>{const at=areaTotals[s]||{name:LABELS[s],total:0,units:0};return `<div style="background:#f8fafc;border:1px solid #e7ebf0;border-radius:10px;padding:12px"><div style="font-size:11px;font-weight:750;color:#64748b;text-transform:uppercase">${esc(at.name)}</div><div style="font-size:20px;font-weight:850;color:#0e7c72;margin:4px 0 2px">$ ${fmt(at.total)}</div><div class="tiny-muted">${fmt(at.units)} unidades producidas</div></div>`;}).join('')}</div></div></section><div style="display:flex;flex-direction:column;gap:18px">${data.people.map(p=>`<details class="panel pay-accordion" data-pay-person="${esc(p.name)}" ${payrollOpen.has(p.name)?'open':''}><summary class="pay-summary"><div class="pay-summary-main"><div class="avatar" style="background:#0b8a8d;color:#fff;font-weight:850">${esc(p.name.charAt(0).toUpperCase())}</div><div class="pay-summary-text"><div class="panel-title" style="font-size:16px">${esc(p.name)}</div><div class="panel-sub">${fmt(p.units)} prendas liquidadas · ${p.items.length} tareas</div></div></div><div class="pay-summary-total"><span class="tiny-muted" style="text-transform:uppercase;font-size:10px;font-weight:800;display:block">Total a pagar</span><span style="font-size:20px;font-weight:850;color:#07625a;letter-spacing:-.03em">$ ${fmt(p.total)}</span></div><span class="pay-chev" aria-hidden="true">▾</span></summary><div class="table-wrap pay-accordion-body"><table class="data-table"><thead><tr><th>Lote / Talla</th><th>OP / Referencia / Diseño</th><th>Área / Tarea</th><th>Unidades</th><th>Tarifa aplicada</th><th>Total</th><th>Fecha</th></tr></thead><tbody>${p.items.map(it=>`<tr><td class="maincol mono">${esc(it.lotCode)}<div class="subcol">Talla ${esc(it.size)}</div></td><td><b>${esc(it.orderCode)}</b><div class="subcol">${esc(it.reference)} · ${esc(it.design)}</div></td><td><span class="tag teal">${esc(it.areaName)}</span><div class="subcol">${esc(it.task)}</div></td><td class="mono"><strong>${fmt(it.qty)}</strong></td><td class="mono">$ ${fmt(it.unitRate)}${it.isTeam?`<div class="subcol" style="color:#007567">Reparto 1/${it.teamCount} de $ ${fmt(it.fullRate)}</div>`:''}</td><td class="mono" style="font-weight:800;color:#07625a">$ ${fmt(it.total)}</td><td class="subcol">${time(it.when)}</td></tr>`).join('')}</tbody></table></div></details>`).join('')||`<section class="panel empty">${icon('box')}<strong>Sin pagos acumulados en esta semana.</strong>Registra trabajo en Producción para liquidar destajo a los operarios asignados.</section>`}</div>`;}
+function renderPayroll(){const range=getWeekRange(weekOffset),data=getPayItemsForWeek(range),totalUnits=data.items.reduce((s,i)=>s+i.qty,0),totalLots=new Set(data.items.map(i=>i.lotId)).size,areaTotals={};for(const it of data.items){if(!areaTotals[it.stage])areaTotals[it.stage]={name:it.areaName,total:0,units:0};areaTotals[it.stage].total+=it.total;areaTotals[it.stage].units+=it.qty;}const actions=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><div style="display:flex;gap:4px"><button class="btn secondary sm" data-action="prev-week" title="Semana anterior">← Ant.</button><button class="btn secondary sm" data-action="current-week" ${weekOffset===0?'disabled':''}>Actual</button><button class="btn secondary sm" data-action="next-week" title="Semana siguiente" ${weekOffset>=0?'disabled':''}>Sig. →</button></div>${data.isClosed?`<button class="btn danger sm" data-action="reopen-week" data-week="${esc(range.weekKey)}" ${hasAdmin()?'':'disabled'}>Reabrir semana</button>`:`<button class="btn sm" data-action="close-week" data-week="${esc(range.weekKey)}" ${isManager()&&data.items.length?'':'disabled'}>${icon('check')} Cerrar semana</button>`}<button class="btn secondary sm" data-action="print-payroll">${icon('download')} Imprimir</button><button class="btn secondary sm" data-action="export-payroll">${icon('download')} CSV</button></div>`;return `${header('Liquidación semanal por destajo',`Ventana de pago: ${esc(range.label)} (${esc(range.weekKey)})`,actions)}${data.isClosed?`<div class="banner" style="background:#eaf2fb;border-color:#c8dbf4;color:#274f82">${icon('info')}<span><strong>Semana cerrada y congelada.</strong> Cerrada por <b>${esc(data.settlement.closedBy)}</b> el ${time(data.settlement.closedAt)}. Los montos se encuentran protegidos ante cambios de tarifas posteriores.</span></div>`:''}<div class="kpis">${kpi('Total a liquidar','$ '+fmt(data.total),`${data.people.length} personas con pago`,'wallet')}${kpi('Prendas liquidadas',totalUnits,'Unidades procesadas','layers')}${kpi('Lotes involucrados',totalLots,'Lotes con avance','scissors')}${kpi('Estado de semana',data.isClosed?'Cerrada':'Abierta',data.isClosed?'Liquidación congelada':'Acumulación en vivo','check')}</div><section class="panel" style="margin-bottom:18px"><div class="panel-head"><div><div class="panel-title">Mano de obra por área de planta</div><div class="panel-sub">Destajo generado en la semana lun–dom</div></div></div><div class="panel-body"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">${STAGES.map(s=>{const at=areaTotals[s]||{name:LABELS[s],total:0,units:0};return `<div style="background:#f8fafc;border:1px solid #e7ebf0;border-radius:10px;padding:12px"><div style="font-size:11px;font-weight:750;color:#64748b;text-transform:uppercase">${esc(at.name)}</div><div style="font-size:20px;font-weight:850;color:#0e7c72;margin:4px 0 2px">$ ${fmt(at.total)}</div><div class="tiny-muted">${fmt(at.units)} unidades producidas</div></div>`;}).join('')}</div></div></section><div style="display:flex;flex-direction:column;gap:18px">${data.people.map(p=>`<details class="panel pay-accordion" data-pay-person="${esc(p.name)}" ${payrollOpen.has(p.name)?'open':''}><summary class="pay-summary"><div class="pay-summary-main"><div class="avatar" style="background:#0b8a8d;color:#fff;font-weight:850">${esc(p.name.charAt(0).toUpperCase())}</div><div class="pay-summary-text"><div class="panel-title" style="font-size:16px">${esc(p.name)}</div><div class="panel-sub">${fmt(p.units)} prendas liquidadas · ${p.items.length} tareas</div></div></div><div class="pay-summary-total"><span class="tiny-muted" style="text-transform:uppercase;font-size:10px;font-weight:800;display:block">Total a pagar</span><span style="font-size:20px;font-weight:850;color:#07625a;letter-spacing:-.03em">$ ${fmt(p.total)}</span></div><span class="pay-chev" aria-hidden="true">▾</span></summary><div class="table-wrap pay-accordion-body"><table class="data-table"><thead><tr><th>Lote / Talla</th><th>OP / Referencia / Diseño</th><th>Área / Tarea</th><th>Unidades</th><th>Tarifa aplicada</th><th>Total</th><th>Fecha</th></tr></thead><tbody>${p.items.map(it=>`<tr><td class="maincol mono">${esc(it.lotCode)}<div class="subcol">Talla ${esc(it.size)}</div></td><td><b>${esc(it.orderCode)}</b><div class="subcol">${esc(it.reference)} · ${esc(it.design)}</div></td><td><span class="tag teal">${esc(it.areaName)}</span><div class="subcol">${esc(it.task)}</div></td><td class="mono"><strong>${fmt(it.qty)}</strong></td><td class="mono">$ ${fmt(it.unitRate)}${it.isTeam?`<div class="subcol" style="color:#007567">Reparto 1/${it.teamCount} de $ ${fmt(it.fullRate)}</div>`:''}</td><td class="mono" style="font-weight:800;color:#07625a">$ ${fmt(it.total)}</td><td class="subcol">${time(it.when)}</td></tr>`).join('')}</tbody></table></div></details>`).join('')||`<section class="panel empty">${icon('box')}<strong>Sin pagos acumulados en esta semana.</strong>Registra trabajo en Producción para liquidar destajo a los operarios asignados.</section>`}</div>`;}
 function traceTable(l){const s=l.stocks;const extraRows=[['En tránsito',s.transit],['Retenidas',s.held],['Diferencias por conciliar',s.incidents],['Producto terminado',s.finished],['Merma definitiva',s.scrap]].filter(([,v])=>v>0);const showReady=STAGES.some(a=>s[a].ready>0);return `<div class="detail-grid"><div class="lot-measure"><b>${fmt(l.planned)}</b><span>Planificadas</span></div><div class="lot-measure"><b>${fmt(s.finished)}</b><span>Terminadas</span></div>${s.held>0?`<div class="lot-measure"><b>${fmt(s.held)}</b><span>Retenidas</span></div>`:''}${s.scrap>0?`<div class="lot-measure"><b>${fmt(s.scrap)}</b><span>Merma</span></div>`:''}${s.transit>0?`<div class="lot-measure"><b>${fmt(s.transit)}</b><span>En tránsito</span></div>`:''}</div><div class="table-wrap"><table class="data-table"><thead><tr><th>Ubicación</th><th>Pendiente</th>${showReady?'<th>Lista</th>':''}<th>Total</th></tr></thead><tbody>${STAGES.map(a=>{const total=s[a].pending+s[a].ready;if(total===0&&!orderAssignedAreas(getOrder(l.orderId)).includes(a))return '';return `<tr><td class="maincol">${LABELS[a]}</td><td>${fmt(s[a].pending)}</td>${showReady?`<td>${fmt(s[a].ready)}</td>`:''}<td><b>${fmt(total)}</b></td></tr>`;}).join('')}${extraRows.map(([k,v])=>`<tr><td class="maincol">${k}</td><td>—</td>${showReady?'<td>—</td>':''}<td><b>${fmt(v)}</b></td></tr>`).join('')}</tbody></table></div><div class="audit-balance ${sumStock(l)!==l.planned?'error':''}"><span><b>Control de conciliación</b><br><small>${fmt(sumStock(l))} unidades localizadas o clasificadas / ${fmt(l.planned)} planificadas</small></span>${tag(sumStock(l)===l.planned?'Sin descuadre':'Descuadre',''+(sumStock(l)===l.planned?'green':'red'))}</div>`;}
 function renderTrace(){view='work';stageView='trazabilidad';return renderWork();}
 function canRemoveUser(u){if(!hasAdmin())return false;if(!u||u.id===db.currentUser)return false;const admins=db.users.filter(x=>x.role==='admin'&&userEnabled(x));if(u.role==='admin'&&admins.length<=1&&userEnabled(u))return false;return db.users.length>1;}
@@ -2911,6 +3459,16 @@ function attachEnhanceEffects(){
   }
 }
 
+function labelResponsiveTables(){
+  document.querySelectorAll('table.data-table').forEach(table=>{
+    const heads=[...table.querySelectorAll('thead th')].map(th=>th.textContent.replace(/\s+/g,' ').trim());
+    table.querySelectorAll('tbody tr').forEach(tr=>{
+      const cells=[...tr.children];
+      if(cells.length===1 && cells[0].hasAttribute('colspan')) return;
+      cells.forEach((td,i)=>{ if(heads[i]) td.dataset.label=heads[i]; });
+    });
+  });
+}
 function render(){
   const appEl = document.getElementById('app');
   if(!loggedIn){
@@ -2921,6 +3479,7 @@ function render(){
     document.body.classList.add('dashboard-active');
     appEl.innerHTML = renderShell();
     attachEnhanceEffects();
+    labelResponsiveTables();
   }
 }
 function updateNewOrderSummary(){const form=document.getElementById('action-form');if(!form)return;if(modal&&modal.kind==='new-order'){const qtyInputs=[...form.querySelectorAll('.order-qty-input')];const totalUnits=qtyInputs.reduce((s,inp)=>s+(Number(inp.value)||0),0);const unitsEl=document.getElementById('order-summary-units');if(unitsEl)unitsEl.textContent=fmt(totalUnits)+' uds';const activeChks=[...form.querySelectorAll('.task-active-chk:checked')];let unitCost=0;for(const chk of activeChks){const idx=chk.value;const costInp=form.querySelector(`[name="task_cost_${idx}"]`);unitCost+=Number(costInp?.value||0);}for(const row of form.querySelectorAll('.task-custom-row')){const on=row.querySelector('.task-custom-active');if(on&&!on.checked)continue;unitCost+=Number(row.querySelector('.task-custom-cost')?.value||0);}const unitEl=document.getElementById('order-summary-unit-cost');if(unitEl)unitEl.textContent='$ '+fmt(unitCost);const totalCost=unitCost*totalUnits;const totalEl=document.getElementById('order-summary-total-cost');if(totalEl)totalEl.textContent='$ '+fmt(totalCost);}if(modal&&modal.kind==='process'){const good=Number(form.querySelector('[name="good"]')?.value||0);const scrap=Number(form.querySelector('[name="scrap"]')?.value||0);const hold=Number(form.querySelector('[name="hold"]')?.value||0);const l=getLot(modal.id),o=getOrder(l.orderId);const available=l.stocks[modal.stage]?.pending||0;const assign=(o?.assignments||[]).find(a=>a.area===modal.stage)||PLANT_CATALOG.find(a=>a.area===modal.stage);const rate=assign?.cost||0;const sum=good+scrap+hold;const subEl=document.getElementById('process-subtotal');if(subEl)subEl.textContent='$ '+fmt(Math.max(0,good)*rate);const sumEl=document.getElementById('process-sum');if(sumEl)sumEl.textContent=fmt(sum);const msg=document.getElementById('process-balance-msg');if(msg){if(sum<=0){msg.textContent='Indica al menos una unidad';msg.style.color='#DC2626';}else if(sum>available){msg.textContent='Excede disponibles ('+available+')';msg.style.color='#DC2626';}else if(sum<available){msg.textContent='Quedarán '+(available-sum)+' pendientes en estación';msg.style.color='#B45309';}else{msg.textContent='Estación completa con este registro';msg.style.color='#047857';}}}}
@@ -2932,9 +3491,11 @@ function exportCSV(){const rows=[['Orden','Lote','Referencia','Diseño','Talla',
 function validateBackup(raw){const x=JSON.parse(raw);if(!x||x.version!==1||!x.seq||!Array.isArray(x.users)||!x.users.length||!Array.isArray(x.orders)||!Array.isArray(x.lots)||!Array.isArray(x.transfers)||!Array.isArray(x.holds)||!Array.isArray(x.incidents)||!Array.isArray(x.events))throw Error('Respaldo incompatible o incompleto.');if(x.lots.length>100000||x.events.length>500000)throw Error('Archivo demasiado grande para este prototipo.');const lotSet=new Set(x.lots.map(l=>l.id));const ordSet=new Set(x.orders.map(o=>o.id));if(x.lots.some(l=>!ordSet.has(l.orderId))||x.transfers.some(t=>!lotSet.has(t.lotId))||x.holds.some(h=>!lotSet.has(h.lotId))||x.incidents.some(i=>!lotSet.has(i.lotId))||x.events.some(e=>!lotSet.has(e.lotId)))throw Error('Hay referencias internas inválidas.');verifyAll(x);return x;}
 async function importBackup(file){if(!file)return;if(file.size>20*1024*1024){notify('El respaldo supera los 20 MB permitidos.',true);return}try{const d=validateBackup(await file.text());if(!confirm('¿Reemplazar todos los datos actuales con este respaldo? Descarga una copia de seguridad primero.'))return;db=d;if(!db.users.some(u=>u.id===db.currentUser))db.currentUser=db.users[0].id;orderChoice='';lotChoice='';modal=null;view='dashboard';save();render();notify('Respaldo restaurado.')}catch(err){notify('Importación rechazada: '+err.message,true)}}
 document.addEventListener('click',e=>{if(e.target.id==='modal-overlay'){modal=null;render();return}const button=e.target.closest('[data-action],[data-nav],[data-stage]');if(!button||button.disabled)return;const action=button.dataset.action;try{if(action==='toggle-sidebar'){const sb=document.getElementById('sidebar'),bd=document.getElementById('sidebar-backdrop');if(sb){const open=sb.classList.toggle('open');bd?.classList.toggle('open',open);requestAnimationFrame(updateTrack);}return;}if(action==='close-sidebar'){document.getElementById('sidebar')?.classList.remove('open');document.getElementById('sidebar-backdrop')?.classList.remove('open');return;}if(action==='logout'){ loggedIn=false; try{ sessionStorage.removeItem('trama_logged_in'); }catch{} render(); notify('Sesión cerrada correctamente.'); return; }
-if(button.dataset.nav){view=button.dataset.nav;modal=null;render();window.scrollTo({top:0,behavior:'instant'});return}if(button.dataset.stage&&!action){stageView=button.dataset.stage;render();return}if(action==='close-modal'){modal=null;render();return}if(action==='new-order'){requireRight(isManager());open('new-order');return}if(action==='order-detail'){orderChoice=button.dataset.id;render();document.querySelector('.content > section:last-child')?.scrollIntoView({behavior:'smooth',block:'nearest'});return}if(action==='close-order-detail'){orderChoice='';render();return}if(action==='process'){requireRight(authorized(button.dataset.stage));open('process',button.dataset.id,button.dataset.stage);return}if(action==='hold'){open('hold',button.dataset.id,button.dataset.stage);return}if(action==='release-hold'){transact(()=>releaseHold(button.dataset.id,'release'));return}if(action==='scrap-hold'){if(!confirm('¿Marcar estas unidades como merma definitiva?'))return;transact(()=>releaseHold(button.dataset.id,'scrap'));return}if(action==='trace-lot'){lotChoice=button.dataset.id;view='work';stageView='trazabilidad';render();window.scrollTo({top:0,behavior:'instant'});return}if(action==='goto-trace'){view='work';stageView='trazabilidad';render();window.scrollTo({top:0,behavior:'instant'});return}if(action==='prev-week'){weekOffset--;render();return}if(action==='next-week'){if(weekOffset<0){weekOffset++;render();}return}if(action==='current-week'){weekOffset=0;render();return}if(action==='close-week'){transact(()=>closeWeek(button.dataset.week));return}if(action==='reopen-week'){transact(()=>reopenWeek(button.dataset.week));return}if(action==='print-payroll'){window.print();return}if(action==='export-payroll'){const range=getWeekRange(weekOffset),data=getPayItemsForWeek(range);exportPayrollCSV(range,data);return}if(action==='add-user'){requireRight(hasAdmin());open('add-user');return}if(action==='toggle-user'){requireRight(hasAdmin());transact(()=>setUserEnabled(button.dataset.id,button.dataset.enabled==='1'));return}if(action==='remove-user'){requireRight(hasAdmin());const uid=button.dataset.id;const u=db.users.find(x=>x.id===uid);if(!u){notify('Usuario no encontrado.',true);return}if(!confirm('¿Eliminar a «'+u.name+'» del entorno de demostración?'))return;transact(()=>removeUser(uid));return}if(action==='add-task'){const box=document.getElementById('tasks-assignment-list');if(!box)return;const uid='c'+Date.now().toString(36);const row=document.createElement('div');row.className='compact-row task-custom-row';row.dataset.customId=uid;row.style.cssText='padding:8px 0;align-items:center;flex-wrap:wrap;gap:8px';row.innerHTML=`<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:180px"><input type="checkbox" class="task-custom-active" checked style="width:17px;height:17px;cursor:pointer;margin:0" /><div style="display:grid;gap:4px;flex:1;min-width:0"><input class="task-custom-area" type="text" placeholder="Área (ej. Bordado)" required style="padding:6px 8px;font-size:12px;border:1px solid #dce4ed;border-radius:7px;font-weight:750" /><input class="task-custom-task" type="text" placeholder="Tarea / descripción" required style="padding:6px 8px;font-size:12px;border:1px solid #dce4ed;border-radius:7px" /></div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><input class="task-custom-worker" type="text" placeholder="Operario" required style="padding:6px 8px;font-size:12px;border:1px solid #dce4ed;border-radius:7px;min-width:110px" /><div style="display:flex;align-items:center;gap:4px"><span class="tiny-muted">$</span><input type="number" class="task-custom-cost task-cost-input" value="1500" min="0" step="100" style="width:85px;padding:6px 7px;font-size:12px;border:1px solid #dce4ed;border-radius:7px;text-align:right" required /></div><button class="btn secondary sm" type="button" data-action="remove-task" title="Quitar función">×</button></div>`;box.appendChild(row);row.querySelector('.task-custom-area')?.focus();updateNewOrderSummary();return;}if(action==='remove-task'){button.closest('.task-custom-row')?.remove();updateNewOrderSummary();return;}if(action==='add-size'){let box=document.getElementById('size-rows');const row=document.createElement('div');row.className='size-row';row.innerHTML='<input name="size" placeholder="Talla" aria-label="Talla" required/><input type="number" name="qty" min="0" step="1" value="0" class="order-qty-input" aria-label="Cantidad" required/><button class="btn secondary sm" type="button" data-action="remove-size" title="Eliminar talla">×</button>';box.appendChild(row);row.querySelector('input').focus();updateNewOrderSummary();return}if(action==='remove-size'){const items=document.querySelectorAll('#size-rows .size-row');if(items.length===1){notify('Debe quedar al menos una fila de talla.',true);return}button.closest('.size-row')?.remove();updateNewOrderSummary();return}if(action==='export-json'){download('TRAMA_Respaldo_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(db,null,2));notify('Respaldo descargado.');return}if(action==='import-json'){requireRight(hasAdmin());document.getElementById('backup-file').click();return}if(action==='export-csv'){exportCSV();return}if(action==='reset-demo'){requireRight(hasAdmin());if(confirm('¿Restablecer la demostración? Se perderán los cambios que no hayas exportado.')){createDemo();save();render();notify('Demostración restablecida.');}return}if(action==='reset-empty'){requireRight(hasAdmin());if(confirm('¿Vaciar TODAS las órdenes y registros de producción? Se perderán los cambios no respaldados.')){db=defaultDB();db.demo=false;save();view='dashboard';lotChoice='';orderChoice='';render();notify('Entorno limpio creado.');}return}}catch(err){notify(err.message,true)}});
+if(action==='board-day'){const todayIso=isoDay(new Date());boardDay=button.dataset.day==='yesterday'?shiftIsoDay(todayIso,-1):todayIso;render();return}
+if(action==='open-job'){view='orders';orderChoice=button.dataset.id;modal=null;render();window.scrollTo({top:0,behavior:'instant'});return}
+if(button.dataset.nav){view=button.dataset.nav;orderChoice='';modal=null;render();window.scrollTo({top:0,behavior:'instant'});return}if(button.dataset.stage&&!action){stageView=button.dataset.stage;render();return}if(action==='close-modal'){modal=null;render();return}if(action==='new-order'){requireRight(isManager());open('new-order');return}if(action==='order-detail'){view='orders';orderChoice=button.dataset.id;modal=null;render();window.scrollTo({top:0,behavior:'instant'});return}if(action==='close-order-detail'){orderChoice='';render();window.scrollTo({top:0,behavior:'instant'});return}if(action==='process'){requireRight(authorized(button.dataset.stage));open('process',button.dataset.id,button.dataset.stage);return}if(action==='hold'){open('hold',button.dataset.id,button.dataset.stage);return}if(action==='release-hold'){transact(()=>releaseHold(button.dataset.id,'release'));return}if(action==='scrap-hold'){if(!confirm('¿Marcar estas unidades como merma definitiva?'))return;transact(()=>releaseHold(button.dataset.id,'scrap'));return}if(action==='trace-lot'){lotChoice=button.dataset.id;view='work';stageView='trazabilidad';render();window.scrollTo({top:0,behavior:'instant'});return}if(action==='goto-trace'){view='work';stageView='trazabilidad';render();window.scrollTo({top:0,behavior:'instant'});return}if(action==='prev-week'){weekOffset--;render();return}if(action==='next-week'){if(weekOffset<0){weekOffset++;render();}return}if(action==='current-week'){weekOffset=0;render();return}if(action==='close-week'){transact(()=>closeWeek(button.dataset.week));return}if(action==='reopen-week'){transact(()=>reopenWeek(button.dataset.week));return}if(action==='print-payroll'){window.print();return}if(action==='export-payroll'){const range=getWeekRange(weekOffset),data=getPayItemsForWeek(range);exportPayrollCSV(range,data);return}if(action==='add-user'){requireRight(hasAdmin());open('add-user');return}if(action==='toggle-user'){requireRight(hasAdmin());transact(()=>setUserEnabled(button.dataset.id,button.dataset.enabled==='1'));return}if(action==='remove-user'){requireRight(hasAdmin());const uid=button.dataset.id;const u=db.users.find(x=>x.id===uid);if(!u){notify('Usuario no encontrado.',true);return}if(!confirm('¿Eliminar a «'+u.name+'» del entorno de demostración?'))return;transact(()=>removeUser(uid));return}if(action==='add-task'){const box=document.getElementById('tasks-assignment-list');if(!box)return;const uid='c'+Date.now().toString(36);const row=document.createElement('div');row.className='compact-row task-custom-row';row.dataset.customId=uid;row.style.cssText='padding:8px 0;align-items:center;flex-wrap:wrap;gap:8px';row.innerHTML=`<div style="display:flex;align-items:center;gap:10px;flex:1;min-width:180px"><input type="checkbox" class="task-custom-active" checked style="width:17px;height:17px;cursor:pointer;margin:0" /><div style="display:grid;gap:4px;flex:1;min-width:0"><input class="task-custom-area" type="text" placeholder="Área (ej. Bordado)" required style="padding:6px 8px;font-size:12px;border:1px solid #dce4ed;border-radius:7px;font-weight:750" /><input class="task-custom-task" type="text" placeholder="Tarea / descripción" required style="padding:6px 8px;font-size:12px;border:1px solid #dce4ed;border-radius:7px" /></div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><input class="task-custom-worker" type="text" placeholder="Operario" required style="padding:6px 8px;font-size:12px;border:1px solid #dce4ed;border-radius:7px;min-width:110px" /><div style="display:flex;align-items:center;gap:4px"><span class="tiny-muted">$</span><input type="number" class="task-custom-cost task-cost-input" value="1500" min="0" step="100" style="width:85px;padding:6px 7px;font-size:12px;border:1px solid #dce4ed;border-radius:7px;text-align:right" required /></div><button class="btn secondary sm" type="button" data-action="remove-task" title="Quitar función">×</button></div>`;box.appendChild(row);row.querySelector('.task-custom-area')?.focus();updateNewOrderSummary();return;}if(action==='remove-task'){button.closest('.task-custom-row')?.remove();updateNewOrderSummary();return;}if(action==='add-size'){let box=document.getElementById('size-rows');const row=document.createElement('div');row.className='size-row';row.innerHTML='<input name="size" placeholder="Talla" aria-label="Talla" required/><input type="number" name="qty" min="0" step="1" value="0" class="order-qty-input" aria-label="Cantidad" required/><button class="btn secondary sm" type="button" data-action="remove-size" title="Eliminar talla">×</button>';box.appendChild(row);row.querySelector('input').focus();updateNewOrderSummary();return}if(action==='remove-size'){const items=document.querySelectorAll('#size-rows .size-row');if(items.length===1){notify('Debe quedar al menos una fila de talla.',true);return}button.closest('.size-row')?.remove();updateNewOrderSummary();return}if(action==='export-json'){download('TRAMA_Respaldo_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(db,null,2));notify('Respaldo descargado.');return}if(action==='import-json'){requireRight(hasAdmin());document.getElementById('backup-file').click();return}if(action==='export-csv'){exportCSV();return}if(action==='reset-demo'){requireRight(hasAdmin());if(confirm('¿Restablecer la demostración? Se perderán los cambios que no hayas exportado.')){createDemo();save();render();notify('Demostración restablecida.');}return}if(action==='reset-empty'){requireRight(hasAdmin());if(confirm('¿Vaciar TODAS las órdenes y registros de producción? Se perderán los cambios no respaldados.')){db=defaultDB();db.demo=false;save();view='dashboard';lotChoice='';orderChoice='';render();notify('Entorno limpio creado.');}return}}catch(err){notify(err.message,true)}});
 document.addEventListener('input',e=>{if(e.target.closest('#modal-overlay'))updateNewOrderSummary();if(e.target.id==='orders-filter'){filterText=e.target.value;const keep=e.target.selectionStart;render();const again=document.getElementById('orders-filter');if(again){again.focus();try{again.setSelectionRange(keep,keep);}catch{}}}});
-document.addEventListener('change',e=>{if(e.target.closest('#modal-overlay'))updateNewOrderSummary();if(e.target.id==='active-user'){const next=db.users.find(u=>u.id===e.target.value);if(!next||!userEnabled(next)){notify('Ese usuario está inactivo.',true);render();return}db.currentUser=e.target.value;save();render();notify('Usuario de prueba: '+current().name)}if(e.target.classList.contains('user-role-select')||e.target.dataset.action==='change-user-role'){const uid=e.target.dataset.id,role=e.target.value;try{transact(()=>setUserRole(uid,role));}catch(err){notify(err.message,true);render();}}if(e.target.id==='lot-choice'){lotChoice=e.target.value;render()}if(e.target.id==='show-completed-lots'){showCompletedLots=!!e.target.checked;render()}if(e.target.id==='backup-file')importBackup(e.target.files?.[0]);});
+document.addEventListener('change',e=>{if(e.target.closest('#modal-overlay'))updateNewOrderSummary();if(e.target.id==='active-user'){const next=db.users.find(u=>u.id===e.target.value);if(!next||!userEnabled(next)){notify('Ese usuario está inactivo.',true);render();return}db.currentUser=e.target.value;save();render();notify('Usuario de prueba: '+current().name)}if(e.target.classList.contains('user-role-select')||e.target.dataset.action==='change-user-role'){const uid=e.target.dataset.id,role=e.target.value;try{transact(()=>setUserRole(uid,role));}catch(err){notify(err.message,true);render();}}if(e.target.id==='lot-choice'){lotChoice=e.target.value;render()}if(e.target.id==='show-completed-lots'){showCompletedLots=!!e.target.checked;render()}if(e.target.id==='board-date'){boardDay=e.target.value||isoDay(new Date());render();return}if(e.target.id==='board-status'){boardStatus=e.target.value;render();return}if(e.target.id==='board-client'){boardClient=e.target.value;render();return}if(e.target.id==='orders-status'){ordersStatus=e.target.value;render();return}if(e.target.id==='orders-client'){ordersClient=e.target.value;render();return}if(e.target.id==='backup-file')importBackup(e.target.files?.[0]);});
 document.addEventListener('toggle',e=>{const d=e.target;if(!(d&&d.matches&&d.matches('details.pay-accordion')))return;const name=d.dataset.payPerson||'';if(d.open)payrollOpen.add(name);else payrollOpen.delete(name);},{capture:true});document.addEventListener('submit',e=>{if(e.target.id==='action-form'){e.preventDefault();handleSubmit(e.target)}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(modal){modal=null;render();}else{document.getElementById('sidebar')?.classList.remove('open');document.getElementById('sidebar-backdrop')?.classList.remove('open');}}});
 
